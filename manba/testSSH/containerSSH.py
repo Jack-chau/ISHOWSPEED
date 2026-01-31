@@ -164,3 +164,72 @@ class AnsibleDockerConnector:
         print( f"   Could not detect package manager")
         return None
 
+    def _check_package_managers_directly( self, container ) :
+        """Check for package managers directly by trying to run them"""
+        package_managers = [
+                                ( "apk", "apk --version 2>/dev/null" ) ,
+                                ( "apt", "apt-get --version 2>/dev/null" ) ,
+                                ( "yum,", "yum --version 2>/dev/null" ) ,
+                                ( "dnf", "dnf --version 2>/dev/null" ),
+                                ( "zypper", "zypper --version 2>/dev/null" ) ,
+                                ( "pacman", "pacman --version 2>/dev/null" )
+                            ]
+        for pm_name, check_cmd in package_managers :
+            try :
+                result = container.exec_run( 
+                    f"/bin/sh -c '{check_cmd}'",
+                    stdout = subprocess.PIPE ,
+                )
+                if result.exit_code == 0 :
+                    return pm_name
+            except :
+                continue
+
+        return None
+    
+    def _check_os_release_files( self, container ):
+        """Check OS release files to determine package manager"""
+        release_files = [
+                            "/etc/os-release" ,
+                            "/etc/lsb-release" ,
+                            "/etc/redhat-release" ,
+                            "/etc/debian_version" ,
+                            "/etc/alpine-release" ,
+                            "/etc/centos-release"
+                        ]
+        for release_file in release_files :
+            try :
+                result = result.output.decode( 'utf-8', errors="ignore" ).lower()
+
+                # Check for specific distrubutions
+                if "alpine" in content or "alpine" in release_file :
+                    return "apk"
+                elif "ubuntu" in content or "debian" in content or "debian" in release_file :
+                    return "apt"
+                elif "centos" in content or "rhel" in content or "red hat" in content :
+                    return "yum"
+                elif "suse" in content or "opensuse" in content :
+                    return "zypper"
+                elif "fedora" in content :
+                    return "dnf"
+                elif "arch" in content :
+                    return "pacman"
+            except :
+                continue
+    
+    def _check_image_metadata( self, container ) :
+        """Check Docker image metadata for hints"""
+        try :
+            image_tags = container.image.tags
+            if not image_tags :
+                return None
+
+            image_name = image_tags[ 0 ].lower( )
+
+            # Check for known image patterns
+            if any( pattern in image_name for pattern in [ "alpine", "busybox" ] ) :
+                return "apk"
+            elif any( pattern in image_name for pattern in [ "ubuntu", "debian" ] ) :
+                return "apt"
+            elif ang (pattern in image_name for pattern in ["centos", "rhel", "rockylinux", "oraclelinux"] ) :
+                return "yum"
