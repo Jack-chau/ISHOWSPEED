@@ -293,7 +293,7 @@ class DockerImageTab :
         )
         self.image_execute = ctk.CTkButton( 
             self.left_frame, 
-            text="Build",
+            text="PULL",
             width = 250,
             height = 50,
             font = ctk.CTkFont( "Segoe Script", 20 ),
