@@ -11,39 +11,6 @@ class DockerContainerTab :
         self._setup_ui( )
         self.refrest_container_list( )
 
-    # Show all containers
-    def show_all_containers( self ) :
-        all_containers = self.client.containers.list( all = all )
-        all_containers_list = list( )
-        for container in all_containers :
-            network_settings = container.attrs['NetworkSettings']['Networks']
-            # Get network if exists
-            if network_settings :
-                network_info = dict( )
-                # for key and values in network_settings.items( )
-                for network_name, network_setting in network_settings.items( ) :
-                    network = self.client.networks.get( network_setting[ 'NetworkID' ] )
-                    network_info[network_name] = {
-                        'driver' : network.attrs['Driver'],
-                        'network_id' : network.id,
-                        'ip_address' : network_setting['IPAddress'],
-                        }
-            all_containers_list.append(
-                {
-					'id' : container.short_id,
-					'name' : container.name,
-					'status' : container.status,
-					'newtwork_name' : list( network_info.keys() )[0],
-					'network_type' : network_info[network_name]['driver'],
-					'ip_addr' : network_info[network_name]['ip_address'] ,
-					'ports' : ', '.join( container.attrs['NetworkSettings']['Ports'].keys() )
-				}
-			)
-        if len( all_containers_list ) > 0 :
-            return( all_containers_list )
-        else :
-            return( "No running containers" )
-
     def _setup_ui( self ) :
 
         self.container_label = ctk.CTkLabel(
@@ -339,7 +306,6 @@ class DockerContainerTab :
         )
 
 
-
 # container publish port
         self.pub_port_label = ctk.CTkLabel(
             self.left_frame,
@@ -412,9 +378,6 @@ class DockerContainerTab :
         )
 
 # Container Management Table
-
-    # Data Preparation
-    
         self.container_list = list( )
         headers =  [ "Select", "Name", "Status", "Netowrk", "IP Address" ]
 
@@ -518,6 +481,57 @@ class DockerContainerTab :
             pady = ( 35 , 0 ),
             padx = ( 10, 10 ),
         )
+    # Show all containers
+    def show_all_containers( self ) :
+        all_containers = self.client.containers.list( all = all )
+        all_containers_list = list( )
+        for container in all_containers :
+            containers_inspect = container.attrs['NetworkSettings']['Networks']
+
+            network_name = "none"
+            network_driver = "none"
+            ip_address = "none"
+
+            # Get network information if exists
+            if containers_inspect :
+                network_info = dict( )
+                # for key and values in containers_inspect.items( )
+                for network_name, network_setting in containers_inspect.items( ) :
+                    try:
+                        network_inspect = self.client.networks.get( network_setting[ 'NetworkID' ] )
+                        network_info[network_name] = {
+                            'driver' : network_inspect.attrs['Driver'],
+                            'network_id' : network_inspect.id,
+                            'ip_address' : network_setting.get( 'IPAddress', 'none' ),
+                            }
+
+                    except Exception as e:
+                        print(f"Error getting network info: {e}")
+                        continue
+                if network_info :
+                    network_name = list( network_info.keys() )[0]
+                    network_driver = network_info[ network_name ][ 'driver' ]
+                    ip_address = network_info[ network_name ][ 'ip_address' ]
+                
+            ports_info = container.attrs.get('NetworkSettings',{}).get( 'Ports', {} )
+            ports_str = ', '.join(ports_info.keys()) if ports_info else "none"
+
+
+            all_containers_list.append(
+                {
+					'id' : container.short_id,
+					'name' : container.name,
+					'status' : container.status,
+					'newtwork_name' : network_name,
+					'network_type' : network_driver,
+					'ip_addr' : ip_address,
+					'ports' : ports_str,
+				}
+			)
+        if len( all_containers_list ) > 0 :
+            return( all_containers_list )
+
+
 
     def on_table_click( self, cell ) :
         row, column = cell["row"] , cell["column"]
@@ -527,7 +541,6 @@ class DockerContainerTab :
             else :
                 self.container_list[row][0] = '▢'
             self.container_table.update_values( self.container_list )
-        # print( self.container_list )
 
     def selected_container( self ) :
         select_list = list()
@@ -589,7 +602,6 @@ class DockerContainerTab :
         self.refrest_container_list()
         return result
         
-
     def remove_container( self ) :
         running_list = list()
         stoped_list = list()

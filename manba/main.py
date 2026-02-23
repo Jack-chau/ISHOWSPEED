@@ -27,7 +27,7 @@ class Notorious( ctk.CTk ) :
 # Music
         # thread2 = threading.Thread( target = self.play_music )
         # thread2.start()
-        self.play_music()
+        # self.play_music()
     
         # define grid ( 10 column * 4 row )
         self.grid_columnconfigure( 0, weight = 0 )

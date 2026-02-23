@@ -96,33 +96,60 @@ class DockerContainerFun :
 			return( e )
 
 	def show_all_containers( self ) :
-		all_containers = self.client.containers.list( all = all )
+		all_containers = self.client.containers.list( all = True )
 		all_containers_list = list( )
+
 		for container in all_containers :
 			network_settings = container.attrs['NetworkSettings']['Networks']
+			# Default values
+			network_name="none"
+			network_driver="none"
+			ip_address="none"
             # Get network if exists
 			if network_settings :
 				network_info = dict( )
                 # for key and values in network_settings.items( )
 				for network_name, network_setting in network_settings.items( ) :
-					network = self.client.networks.get( network_setting[ 'NetworkID' ] )
-					network_info[network_name] = {
-                        'driver' : network.attrs['Driver'],
-                        'network_id' : network.id,
-                        'ip_address' : network_setting['IPAddress'],
-                        }
-				all_containers_list.append(
-				{
+					try :
+						network = self.client.networks.get( network_setting[ 'NetworkID' ] )
+						network_info[network_name] = {
+							'driver' : network.attrs['Driver'],
+							'network_id' : network.id,
+							'ip_address' : network_setting.get('IPAddress', 'none'),
+							}
+					except Exception as e:
+						print(f"Error getting network info: {e}")
+				if network_info:
+					network_name = list(network_info.keys())[0]
+					network_driver = network_info[network_name]['driver']
+					ip_address = network_info[network_name]['ip_address']
+			# Get ports info safely
+			ports_info = container.attrs.get('NetworkSettings', {}).get('Ports', {})
+			ports_str = ', '.join(ports_info.keys()) if ports_info else "none"
+
+
+			container_data = {
 					'id' : container.short_id,
 					'name' : container.name,
 					'status' : container.status,
-					'newtwork_name' : list( network_info.keys() )[0],
-					'network_type' : network_info[network_name]['driver'],
-					'ip_addr' : network_info[network_name]['ip_address'] ,
-					'ports' : ', '.join( container.attrs['NetworkSettings']['Ports'].keys() )
+					'network_name' : network_name,
+					'network_type' :network_driver,
+					'ip_addr' : ip_address,
+					'ports' : ports_str,
 				}
-			)
+		
+			all_containers_list.append(container_data)
 		if len( all_containers_list ) > 0 :
 			return( all_containers_list )
 		else :
-			return( "No running containers" )
+			return( "No container found" )
+
+	def remove_container( self ) :
+		all_containers = self.client.containers.list(all=True)
+		for container in all_containers:
+			container.stop()
+			container.remove()
+			(f"Removed exited container: {container.name}")
+a = DockerContainerFun()
+
+print( a.show_all_containers() )
