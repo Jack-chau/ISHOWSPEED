@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from CTkTable import *
+from CTkMessagebox import CTkMessagebox
 import webbrowser
 import docker
 import subprocess
@@ -10,6 +11,59 @@ class DockerContainerTab :
         self.client = docker.from_env( )
         self._setup_ui( )
         self.refrest_container_list( )
+
+    # Show all containers
+    def show_all_containers( self ) :
+        all_containers = self.client.containers.list( all = all )
+        all_containers_list = list( )
+        for container in all_containers :
+            containers_inspect = container.attrs['NetworkSettings']['Networks']
+            # init variables
+            network_name = "none"
+            network_driver = "none"
+            ip_address = "none"
+            ports_str = "none"
+
+            # Get network information if exists
+            if containers_inspect :
+                network_info = dict( )
+                # for key and values in containers_inspect.items( )
+                for network_name, network_setting in containers_inspect.items( ) :
+                    try:
+                        network_inspect = self.client.networks.get( network_setting[ 'NetworkID' ] )
+                        network_info[network_name] = {
+                            'driver' : network_inspect.attrs['Driver'],
+                            'network_id' : network_inspect.id,
+                            'ip_address' : network_setting.get( 'IPAddress', 'none' ),
+                            }
+
+                    except Exception as e:
+                        print(f"Error getting network info: {e}")
+                        continue
+
+                if network_info :
+                    network_name = list( network_info.keys() )[0]
+                    network_driver = network_info[ network_name ][ 'driver' ]
+                    ip_address = network_info[ network_name ][ 'ip_address' ]
+                
+            ports_info = container.attrs.get('NetworkSettings',{}).get( 'Ports', {} )
+            ports_str = ', '.join(ports_info.keys()) if ports_info else "none"
+
+
+            all_containers_list.append(
+                {
+					'id' : container.short_id,
+					'name' : container.name,
+					'status' : container.status,
+					'newtwork_name' : network_name,
+					'network_type' : network_driver,
+					'ip_addr' : ip_address,
+					'ports' : ports_str,
+				}
+			)
+        if len( all_containers_list ) > 0 :
+            return( all_containers_list )
+
 
     def _setup_ui( self ) :
 
@@ -389,13 +443,14 @@ class DockerContainerTab :
         for i in range( 13 ) :
             self.container_list.append( [] )
 
-        for i, container in enumerate( running_container, 1 ) :
-            self.container_list[i]= [ "▢", 
-                                      container['name'], 
-                                      container["status"],
-                                      container["newtwork_name"],
-                                      container["ip_addr"],
-                                    ]
+        if running_container :
+            for i, container in enumerate( running_container, 1 ) :
+                self.container_list[i]= [ "▢", 
+                                        container['name'], 
+                                        container["status"],
+                                        container["newtwork_name"],
+                                        container["ip_addr"],
+                                        ]
 
         self.container_table = CTkTable( 
                 master = self.right_frame,
@@ -481,56 +536,6 @@ class DockerContainerTab :
             pady = ( 35 , 0 ),
             padx = ( 10, 10 ),
         )
-    # Show all containers
-    def show_all_containers( self ) :
-        all_containers = self.client.containers.list( all = all )
-        all_containers_list = list( )
-        for container in all_containers :
-            containers_inspect = container.attrs['NetworkSettings']['Networks']
-
-            network_name = "none"
-            network_driver = "none"
-            ip_address = "none"
-
-            # Get network information if exists
-            if containers_inspect :
-                network_info = dict( )
-                # for key and values in containers_inspect.items( )
-                for network_name, network_setting in containers_inspect.items( ) :
-                    try:
-                        network_inspect = self.client.networks.get( network_setting[ 'NetworkID' ] )
-                        network_info[network_name] = {
-                            'driver' : network_inspect.attrs['Driver'],
-                            'network_id' : network_inspect.id,
-                            'ip_address' : network_setting.get( 'IPAddress', 'none' ),
-                            }
-
-                    except Exception as e:
-                        print(f"Error getting network info: {e}")
-                        continue
-                if network_info :
-                    network_name = list( network_info.keys() )[0]
-                    network_driver = network_info[ network_name ][ 'driver' ]
-                    ip_address = network_info[ network_name ][ 'ip_address' ]
-                
-            ports_info = container.attrs.get('NetworkSettings',{}).get( 'Ports', {} )
-            ports_str = ', '.join(ports_info.keys()) if ports_info else "none"
-
-
-            all_containers_list.append(
-                {
-					'id' : container.short_id,
-					'name' : container.name,
-					'status' : container.status,
-					'newtwork_name' : network_name,
-					'network_type' : network_driver,
-					'ip_addr' : ip_address,
-					'ports' : ports_str,
-				}
-			)
-        if len( all_containers_list ) > 0 :
-            return( all_containers_list )
-
 
 
     def on_table_click( self, cell ) :
@@ -602,6 +607,7 @@ class DockerContainerTab :
         self.refrest_container_list()
         return result
         
+        
     def remove_container( self ) :
         running_list = list()
         stoped_list = list()
@@ -611,17 +617,54 @@ class DockerContainerTab :
                 running_list.append( row[1] )
             elif row[0] == '🗹' and row[2] != "running" :
                 stoped_list.append( row[1] )
+
+        if not running_list and not stoped_list :
+            CTkMessagebox(
+                title = "No Selection",
+                message = "Please select at least one container to remove!",
+                icon = "info",
+                option_1 = "OK"
+            )
+            return
                     
         try:
             for i in stoped_list :
-                run_cont = subprocess.run( 
-                        [ 'docker', 'rm', str( i ) ],
-                        capture_output = True,
-                        text = True,
+                message = f"Are you sure you want to remove { i } container?\n\n"
+                msg = CTkMessagebox(
+                    title = "Confirm Removal",
+                    message = message,
+                    icon = "warning",
+                    option_1 = "Yes",
+                    option_2 = "No"
+                )
+                if msg.get() == 'Yes' :
+                    run_cont = subprocess.run( 
+                            [ 'docker', 'rm', str( i ) ],
+                            capture_output = True,
+                            text = True,
+                        )
+                    result += f"The Container {i} is removed!!!\n"
+                    CTkMessagebox(
+                        title = "Success",
+                        message = result,
+                        icon = "check",
+                        option_1 = "OK"
                     )
-                result += f"The Container {i} is removed!!!\n"
+                    self.refrest_container_list( )
+                else :
+                    continue
+            
 
             for i in running_list :
+                message = f"Are you sure you want to remove { i } container?\n\n"
+                msg = CTkMessagebox(
+                    title = "Confirm Removal",
+                    message = message,
+                    icon = "warning",
+                    option_1 = "Yes",
+                    option_2 = "No"
+                )
+                if msg.get() == 'Yes' :
                     run_cont = subprocess.run( 
                         [ 'docker', 'stop', str( i ) ],
                         capture_output = True,
@@ -632,10 +675,26 @@ class DockerContainerTab :
                         capture_output = True,
                         text = True,
                     )
-                    
                     result += f"The Container {i} is removed!!!\n"
+                    CTkMessagebox(
+                        title = "Success",
+                        message = result,
+                        icon = "check",
+                        option_1 = "OK"
+                    )
+                    self.refrest_container_list( )
+                else :
+                    continue
+
         except Exception as e :
-            return( e )
+            CTkMessagebox(
+                    title="Error",
+                    message=f"Error removing containers: {str(e)}",
+                    icon="cancel",
+                    option_1="OK"
+                )
+            return str(e)
+                
         self.refrest_container_list()
         return result
 
@@ -644,12 +703,13 @@ class DockerContainerTab :
         headers =  [ "Select", "Name", "Status", "Netowrk", "ip_addr" ]
         self.container_list.append( headers )
         running_container = self.show_all_containers( )
-        for i in running_container :
-            self.container_list.append( [ "▢", 
-                                          i['name'], 
-                                          i["status"],
-                                          i["newtwork_name"],
-                                          i["ip_addr"],
-                                        ] )
+        if running_container :
+            for container in running_container :
+                self.container_list.append( [ "▢", 
+                                            container['name'], 
+                                            container["status"],
+                                            container["newtwork_name"],
+                                            container["ip_addr"],
+                                            ] )
 
         self.container_table.update_values( self.container_list )

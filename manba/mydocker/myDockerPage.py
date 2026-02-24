@@ -107,6 +107,8 @@ class MyDockerPage( ctk.CTkFrame ) :
             )
             if result :
                 self.update_textbox( result )
+                self.main_frame.container_tab.refrest_container_list( )
+                self.main_frame.info_tab.refrest_container_list( )
             else :
                 self.update_textbox( "Fail to create container" )
 

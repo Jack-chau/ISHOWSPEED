@@ -103,7 +103,6 @@ class DockerInfoTab( ) :
 
         # Extract data to a 2D array
         all_containers_info = self.show_all_containers( )
-        print( all_containers_info )
         for i in range( 13 ) :
             self.container_list.append( [] )
         if all_containers_info : 
@@ -305,8 +304,23 @@ class DockerInfoTab( ) :
             padx = ( 10, 0 ),
         )
 
-
-
+    def on_table_click( self, cell ) :
+        row, column = cell["row"] , cell["column"]
+        if row > 0 and column == 0:
+            if self.container_list[row][0] == '▢' :
+                self.container_list[row][0] = '🗹'
+            else :
+                self.container_list[row][0] = '▢'
+            self.container_info_table.update_values( self.container_list )
+    
+    def selected_container( self ) :
+        select_list = list()
+        for row_idx, row in enumerate( self.container_list[1:], 1 ):
+            for column_idx, column in enumerate( row ) :
+                if column == '🗹' :
+                    select_list.append( self.container_list[row_idx] )
+        return select_list
+    
     def run_container( self ) :
         run_name_list = list()
         err_list = list()
@@ -332,22 +346,6 @@ class DockerInfoTab( ) :
         self.refrest_container_list()
         return result
 
-    def on_table_click( self, cell ) :
-        row, column = cell["row"] , cell["column"]
-        if row > 0 and column == 0:
-            if self.container_list[row][0] == '▢' :
-                self.container_list[row][0] = '🗹'
-            else :
-                self.container_list[row][0] = '▢'
-            self.container_info_table.update_values( self.container_list )
-    
-    def selected_container( self ) :
-        select_list = list()
-        for row_idx, row in enumerate( self.container_list[1:], 1 ):
-            for column_idx, column in enumerate( row ) :
-                if column == '🗹' :
-                    select_list.append( self.container_list[row_idx] )
-        return select_list
     def stop_container( self ) :
         stop_name_list = list()
         err_list = list()
