@@ -195,7 +195,7 @@ class AnsibleMainFrame( ctk.CTkFrame ) :
         )
         self.progressbar.set( 0 )
         # self.progressbar.forget()
-
+'''
 # Remark
 ### Note Frame
         self.note_frame = ctk.CTkFrame( 
@@ -221,7 +221,7 @@ class AnsibleMainFrame( ctk.CTkFrame ) :
             fill = 'both' ,
             expand = True,
             side = 'top',
-            padx = ( 0, 0 ),
+            padx = ( 0,AnsibleMainFrame 0 ),
             pady = ( 0, 0 )
         )
 
@@ -335,3 +335,4 @@ class AnsibleMainFrame( ctk.CTkFrame ) :
             padx = ( 200, 0 ), 
             pady = ( 80, 0 ), 
         )
+'''

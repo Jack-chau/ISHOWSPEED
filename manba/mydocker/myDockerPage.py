@@ -89,8 +89,8 @@ class MyDockerPage( ctk.CTkFrame ) :
         container_network = str( container_network ) if container_network else None
         container_ip = self.main_frame.container_tab.staticIP_entry.get( )
         container_ip = str( container_ip ) if container_ip else None
-        published_port = self.main_frame.container_tab.pub_port_entry.get( )
-        published_port = str( published_port ) if published_port else None
+        # published_port = self.main_frame.container_tab.pub_port_entry.get( )
+        # published_port = str( published_port ) if published_port else None
 
         if not container_name : 
             self.update_textbox( f"Please name the container you want to create!!!\n")
@@ -103,7 +103,7 @@ class MyDockerPage( ctk.CTkFrame ) :
                 detach = True,  
                 network = container_network,
                 static_ip = container_ip,
-                ports = published_port,
+                # ports = published_port,
             )
             if result :
                 self.update_textbox( result )
