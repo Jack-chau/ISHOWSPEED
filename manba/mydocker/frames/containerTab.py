@@ -66,7 +66,6 @@ class DockerContainerTab :
 
 
     def _setup_ui( self ) :
-
         self.container_label = ctk.CTkLabel(
             self.container_tab,
             text = "Docker Container Management",
@@ -536,7 +535,6 @@ class DockerContainerTab :
             pady = ( 35 , 0 ),
             padx = ( 10, 10 ),
         )
-
 
     def on_table_click( self, cell ) :
         row, column = cell["row"] , cell["column"]

@@ -221,7 +221,7 @@ class AnsibleMainFrame( ctk.CTkFrame ) :
             fill = 'both' ,
             expand = True,
             side = 'top',
-            padx = ( 0,AnsibleMainFrame 0 ),
+            padx = ( 0, 0  ),
             pady = ( 0, 0 )
         )
 

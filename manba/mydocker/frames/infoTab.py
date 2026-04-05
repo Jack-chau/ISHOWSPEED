@@ -5,13 +5,11 @@ import docker
 import subprocess
 
 class DockerInfoTab( ) :
-    def __init__( self, docker_tab, remark_tab ) :
+    def __init__( self, docker_tab ) :
         self.info_tab = docker_tab.add( 'Info' )
-        self.remark_tab = remark_tab
         self.client = docker.from_env( )
-        self.setup_ui( )
-        self.refrest_container_list( )
 
+        self.setup_ui( )
 
     def show_all_containers( self ) :
         all_containers = self.client.containers.list( all = all )
@@ -305,59 +303,6 @@ class DockerInfoTab( ) :
             padx = ( 10, 0 ),
         )
 
-#### Remark Frame
-        self.remark_frame = ctk.CTkScrollableFrame(
-            self.remark_tab.tab( 'Remarks' ),
-            height = 750,
-            width = 380,
-        )
-        self.remark_frame.grid(
-            row = 0,
-            column = 0,
-            columnspan = 4,
-            rowspan = 2,
-            padx= ( 10, 0 ),
-            pady = ( 10, 0 ),
-            sticky = "nsew" 
-        )
-
-        self.remark_label = ctk.CTkLabel(
-            self.remark_frame,
-            text = "Docker Management: ",
-            font = ( "Comic Sans MS", 30 ),
-            # width = 800,
-        )
-        self.remark_label.grid(
-            row = 0, 
-            column = 0, 
-            columnspan = 4,
-            padx = ( 10, 0 ), 
-            pady = ( 20, 0 ), 
-            sticky = "nsew",
-        )
-        self.remark = ctk.CTkTextbox(
-            self.remark_frame, 
-            font = ( "Comic Sans MS", 25 ),
-            width = 400,
-            height = 700,
-            fg_color = ["#C0C8CE", "#2B2D2F"],
-        )
-        self.remark.grid(
-            row = 2,
-            rowspan = 2,
-            column = 0, 
-            columnspan = 4,
-            padx = ( 10, 0 ), 
-            pady = ( 20, 0 ), 
-            sticky = "nsew",
-        )
-        self.remark.insert( 
-            "0.0",
-            "Welcome to Docker Management Tool!\n\n",
-            "Here shows the docker information",
-        )
-
-
     def on_table_click( self, cell ) :
         row, column = cell["row"] , cell["column"]
         if row > 0 and column == 0:
@@ -470,7 +415,7 @@ class DockerInfoTab( ) :
                         option_1 = "OK"
                     )
                 else :
-                    continue
+                    pass
             
 
             for i in running_list :

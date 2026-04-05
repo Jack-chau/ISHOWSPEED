@@ -5,10 +5,10 @@ import webbrowser
 class DockerImageTab :
     def __init__( self, docker_tab ) :
         self.image_tab = docker_tab.add( 'Image' )
+        self.docker_tab = docker_tab.get()
         self._setup_ui( )
 
     def _setup_ui( self ) :
-
         self.image_label = ctk.CTkLabel(
             self.image_tab,
             text = "Docker Image Management",

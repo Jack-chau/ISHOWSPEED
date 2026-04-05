@@ -9,6 +9,8 @@ from mydocker.frames.imageTab import DockerImageTab
 from mydocker.frames.containerTab import DockerContainerTab
 from mydocker.frames.networkTab import DockerNetworkTab
 from mydocker.frames.trobleShootTab import DockerTSTab
+from mydocker.frames.remarkFrame import RemarkManager
+
 
 
 class DockerMainFrame( ctk.CTkFrame ) :
@@ -168,26 +170,26 @@ class DockerMainFrame( ctk.CTkFrame ) :
             sticky = 'nsew',
         )
 # Remark
-        self.remark_tab = ctk.CTkTabview(
+        self.remark_frame = ctk.CTkFrame(
             self.note_frame,
             width = 400,
             height = 500,
         )
-        self.remark_tab.pack(
+        self.remark_frame.pack(
             fill = 'both' ,
             expand = True,
             side = 'top',
             padx = ( 0, 0 ),
             pady = ( 0, 0 )
         )
-        self.remark_tab.add( 'Remarks' )
 
 # Docker tabs
-        self.info_tab = DockerInfoTab( self.docker_tab, self.remark_tab )
+        self.info_tab = DockerInfoTab( self.docker_tab )
         self.image_tab = DockerImageTab( self.docker_tab )
         self.container_tab = DockerContainerTab( self.docker_tab )
         self.network_tab = DockerNetworkTab( self.docker_tab )
         self.trobleshoot_tab = DockerTSTab( self.docker_tab )
+        self.remark_frame = RemarkManager( self.docker_tab, self.remark_frame  )
 
 #CLI output frame
         # Text Box Frame
