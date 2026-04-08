@@ -50,15 +50,16 @@ class DockerContainerFun :
         }
 
 		base_image = image.split(':')[0].lower()
+		command = image_defaults.get( base_image, None )
 
-		if base_image in image_defaults:
-			command = image_defaults[base_image]
-		else :
-			command = None
+		# if base_image in image_defaults:
+		# 	command = image_defaults[base_image]
+		# else :
+		# 	command = None
 
 		port = kwargs.pop('ports', dict( ) )
 
-		if port :
+		if port and isinstance( port, str ):
 			host_port, container_port = port.split( ':' )
 			port = { f"{container_port}/tcp" : int( host_port ) }
 
@@ -70,30 +71,35 @@ class DockerContainerFun :
 				command = command,
 				ports = port,
 			)
-
-			if static_ip and network:
+			if network :
 				docker_network = self.client.networks.get( network )
-				docker_network.connect( container, ipv4_address = static_ip )
 
-			if network != 'bridge' :
-				docker_network = self.client.networks.get( "bridge" )
-				docker_network.disconnect( container )
+				if static_ip:
+					docker_network.connect( container, ipv4_address = static_ip )
+
+				else :
+					docker_network.connect( container )
+			
+			if network and network != "bridge" :
+				try :
+					bridge_net = self.client.networks.get( "bridge" )
+					bridge_net.disconnect( container )
+				except Exception :
+					pass
 
 			container.reload( )
-
+			
+			result = f"Container {container.id[:12]} started.\n"
+			result += f"Mode: {'Detached' if detach else 'Foreground' }\n"
+			result += f"Network {network if network else 'default'} | IP:{ static_ip if static_ip else 'DHCP' }\n"
 			result = ''
-
-			if detach :
-				result += ( f"container {container.id} is running with detach mode\n" )
-			else :
-				result += ( f"container {container.id} is running without detach mode\n" )
 
 			result += self.docker_ps( )
 
 			return result
 
 		except Exception as e :
-			return( e )
+			return( str( e ) )
 
     # Show all containers
 	def show_all_containers( self ) :
