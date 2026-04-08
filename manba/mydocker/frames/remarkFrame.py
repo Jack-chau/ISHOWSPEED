@@ -1,4 +1,58 @@
 import customtkinter as ctk
+import textwrap
+
+
+# Remark content
+_info_content = textwrap.dedent(f"""
+        Welcome to Docker Management Tool!\n
+          ◕‿◕ DOCKER Info Page ◕‿◕\n
+        ━━━━━━━━━━━━━━━━━━━━━━━━
+            • Quick Container Management\n
+            • Image Version Preview\n
+            • Docker Network Setting\n
+            Ready to manage your Docker!
+    """)
+
+_image_content = textwrap.dedent(f"""
+        Welcome to Docker Management Tool!\n
+          ◕‿◕ DOCKER Image Page ◕‿◕\n
+        ━━━━━━━━━━━━━━━━━━━━━━━━
+            • Pull official image\n
+            • Defalt latest verion \n
+            • Pull image by command\n
+            Ready to manage your Docker!
+    """)
+
+_container_content = textwrap.dedent(f"""
+        Welcome to Docker Management Tool!\n
+          ◕‿◕ DOCKER Container Page ◕‿◕\n
+        ━━━━━━━━━━━━━━━━━━━━━━━━
+            • Create Container\n
+            • Start Container\n
+            • Stop Container\n
+            • Remove Container\n
+            Ready to manage your Docker!
+    """)
+
+_networke_content = textwrap.dedent(f"""
+        Welcome to Docker Management Tool!\n
+          ◕‿◕ DOCKER Image Page ◕‿◕\n
+        ━━━━━━━━━━━━━━━━━━━━━━━━
+            • Create Docker Network\n
+            • Assign Network to Container\n
+            • Setup Static IP\n
+            • DHCP by Default\n
+            Ready to manage your Docker!
+    """)
+_trobleshooting_content = textwrap.dedent(f"""
+        Welcome to Docker Management Tool!\n
+          ◕‿◕ DOCKER Image Page ◕‿◕\n
+        ━━━━━━━━━━━━━━━━━━━━━━━━
+            • View Docker Static\n
+            • Inspect Container\n
+            • Inspect Docker Network\n
+            Ready to manage your Docker!
+    """)
 
 class RemarkManager :
     def __init__( self, docker_tab, remark_frame ) :
@@ -6,6 +60,8 @@ class RemarkManager :
         self.docker_tab = docker_tab
         self.docker_tab.configure( command = self.on_tab_changed )
         self.setup_ui( )
+
+
 
     def setup_ui( self ) :
 # Create remark frame
@@ -87,7 +143,7 @@ class RemarkManager :
 
         self.remark.insert( 
                 "0.0",
-                """Welcome to Docker Management Tool!\nInfo remark"""
+                _info_content
         )        
 
     def on_tab_changed( self ) :
@@ -99,26 +155,27 @@ class RemarkManager :
         if self.current_tab_name == "Info" :
             self.remark.insert( 
                 "0.0",
-                "Welcome to Docker Management Tool!\nInfo remark"
+                _info_content
         )
+
         elif self.current_tab_name == "Image" :
             self.remark.insert( 
                 "0.0",
-                "Welcome to Docker Management Tool!\nImage remark"
+                _image_content
         )
         elif self.current_tab_name == "Container" :
             self.remark.insert( 
                 "0.0",
-                """Welcome to Docker Management Tool!\nContainer remark"""
+                _container_content
         )
         elif self.current_tab_name == "Network" :
             self.remark.insert( 
                 "0.0",
-                """Welcome to Docker Management Tool!\nNetwork remark"""
+                _networke_content
         )
         elif self.current_tab_name == "Trobleshoot" :
             self.remark.insert( 
                 "0.0",
-                """Welcome to Docker Management Tool!\nTrobleshoot remark"""
+                _trobleshooting_content
         )
 
