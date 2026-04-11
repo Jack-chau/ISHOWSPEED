@@ -1,8 +1,5 @@
 import customtkinter as ctk
-# import main frame and tabs
 from mydocker.frames.dockerMainFrame import DockerMainFrame
-# import functions
-# from mydocker.functions.infoFun import DockerInfoFuns
 from mydocker.functions.imageFun import DockerImageFuns
 from mydocker.functions.containerFun import DockerContainerFun
 from mydocker.functions.networkFun import DockerNetworkFun
@@ -30,6 +27,7 @@ class MyDockerPage( ctk.CTkFrame ) :
 
 # Network Tab
         self.main_frame.network_tab.create_network_execute.configure( command = self.create_network )
+        self.main_frame.network_tab.staticIp_execute.configure( command = self.assign_static_ip )
 
 # Troble Shooting Tab
         self.main_frame.trobleshoot_tab.check_it_out.configure( command = self.docker_info )
@@ -135,6 +133,30 @@ class MyDockerPage( ctk.CTkFrame ) :
         except Exception as e :
             print( f"❌Fail to create network" )
             print( e )
+
+# For Network Tab
+    def assign_static_ip( self ) :
+        self.clear_textbox( )
+        container_name = self.main_frame.network_tab.assign_container_entry.get()
+        network_name = self.main_frame.network_tab.network_name_entry.get()
+        static_ip = self.main_frame.network_tab.static_ip_entry.get()
+
+        try :
+            result = self.network_funs.set_static_ip(
+                container_name = container_name,
+                network_name = network_name,
+                static_ip = static_ip
+            )
+            if result :
+                self.update_textbox( result )
+                self.main_frame.container_tab.refrest_container_list()
+                self.main_frame.info_tab.refrest_container_list()
+
+            else :
+                self.update_textbox( f"Fail to setup static ip to container {container_name}\n" )
+        except Exception as e :
+            print( f"❌Fail to setup static ip" )
+            print( e)
 
 # For Trobleshoot Tab
 

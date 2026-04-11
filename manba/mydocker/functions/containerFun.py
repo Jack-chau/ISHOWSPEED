@@ -52,11 +52,6 @@ class DockerContainerFun :
 		base_image = image.split(':')[0].lower()
 		command = image_defaults.get( base_image, None )
 
-		# if base_image in image_defaults:
-		# 	command = image_defaults[base_image]
-		# else :
-		# 	command = None
-
 		port = kwargs.pop('ports', dict( ) )
 
 		if port and isinstance( port, str ):

@@ -302,7 +302,7 @@ class DockerNetworkTab :
         )
         self.assign_container_label = ctk.CTkLabel(
             self.left_frame,
-            text = "Choose the container ",
+            text = "Container Name: ",
             font = ctk.CTkFont(
                 family="Arial",
                 size=16,
@@ -337,7 +337,7 @@ class DockerNetworkTab :
 
         self.network_name_label = ctk.CTkLabel(
             self.left_frame,
-            text = "Choose Network: ",
+            text = "Network: ",
             font = ctk.CTkFont(
                 family="Arial",
                 size=16,
@@ -404,41 +404,6 @@ class DockerNetworkTab :
             pady = ( 25 , 0 ),
             padx = ( 0, 20 ),
         )
-        
-        self.port_label = ctk.CTkLabel(
-            self.left_frame,
-            text = "Port:",
-            font = ctk.CTkFont(
-                family="Arial",
-                size=16,
-                weight="bold",
-                overstrike=False
-            )
-        )
-
-        self.port_label.grid(
-            row = 10,
-            column = 0,
-            sticky = 'w' ,
-            pady = ( 25 , 0 ),
-            padx = ( 40, 0 ),
-        )
-
-        self.port_entry = ctk.CTkEntry(
-            self.left_frame ,
-            placeholder_text = "8080",
-            font = ctk.CTkFont(
-                size=15,
-            )
-        )
-
-        self.port_entry.grid(
-            row = 10,
-            column = 1,
-            sticky = 'we' ,
-            pady = ( 25 , 0 ),
-            padx = ( 0, 20 ),
-        )
 
         self.staticIp_execute = ctk.CTkButton( 
             self.left_frame, 
@@ -448,7 +413,7 @@ class DockerNetworkTab :
             font = ctk.CTkFont( "Segoe Script", 15 ),
         )
         self.staticIp_execute.grid( 
-            row = 11,
+            row = 10,
             column = 0,
             columnspan = 2,
             sticky = 'e' ,

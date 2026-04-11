@@ -71,36 +71,40 @@ class DockerNetworkFun( ) :
 			return f"Unexpected error: {str(e)}\n"	
 
 
-	def set_static_ip(self, container_name, network_name, ip_addr, port_mapping):
-		try:
-		# Get container and network objects
+	def set_static_ip(self, container_name, network_name, static_ip ):
+		try :
+		# Get container and network object in docker
 			container = self.client.containers.get( container_name )
-			network = self.client.networks.get( network_name )
+			target_network = self.client.networks.get( network_name )
 
-            # Disconnect if already connected
-			# if network_name in container.attrs['NetworkSettings']['Networks']:
-			# 	network.disconnect(container)
-
-            # Connect with static IP
-			network.connect(
-				container = container_name,
-				ipv4_address=ip_addr
-			)
-
-            # Verify assignment
-			container.reload()
-			assigned_ip = container.attrs['NetworkSettings']['Networks'][network_name]['IPAddress']
+			if not static_ip :
+				return "Please enter static ip!!!"
 			
-			if assigned_ip == ip_addr:
-				return f"Successfully assigned static IP {ip_addr} to container {container_name}"
-			return "IP assignment verification failed"
-		except docker.errors.NotFound as e:
-			raise RuntimeError(f"Container or network not found: {str(e)}")
-		except Exception as e:
-			raise RuntimeError(f"Failed to set static IP: {str(e)}")
+			# Get current network connection status
+			container.reload()
+			connected_network = container.attrs["NetworkSettings"]["Networks"]
+
+			# Disconnect from ALL current networks
+			if not connected_network :
+				pass
+			else :
+				for net_name in list( connected_network.keys() ) :
+					if not net_name :
+						continue
+					try :
+						net_obj = self.client.networks.get( net_name )
+						net_obj.disconnect( container )
+					except Exception :
+						print(f"Skipping disconnect for {net_name}: {e}")
 
 
+			# Assign static ip to container
+			target_network.connect( container, ipv4_address = static_ip )
+
+			container.reload()
+			return f"Successfully set IP {static_ip} on network {network_name}"
+			
+		except Exception as e :
+			return( str( e ) )
+		
 dnf = DockerNetworkFun()
-# dnf.create_network(name="my-net2", subnet="192.168.2.0/24", gateway = '192.168.2.2')
-# print( dnf.remove_network( name='my-net2') )
-# dnf.set_static_ip("my-container", "my-net", "192.168.1.100")

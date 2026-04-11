@@ -94,6 +94,7 @@ class DockerInfoTab( ) :
             padx = ( 10, 10 ),
             sticky = 'ew',
         )
+
 #  Container Management Table
         self.container_list = list( )
         container_headers = [ 'Select', 'Name', 'Status' ]
@@ -109,7 +110,7 @@ class DockerInfoTab( ) :
                 self.container_list[ i ] = [
                                         "▢", 
                                         container['name'], 
-                                        "stop" if container["status"].lower() == "exited" else container["status"] ,
+                                        "stoped" if container["status"].lower() == "exited" else container["status"] ,
                 ]
 
         self.container_info_table = CTkTable( 
@@ -181,6 +182,7 @@ class DockerInfoTab( ) :
             pady = ( 35 , 0 ),
             padx = ( 30, 10 ),
         )
+        
 # Refrash Table
         self.refrash_btn = ctk.CTkButton( 
             self.left_frame, 
@@ -470,7 +472,7 @@ class DockerInfoTab( ) :
             for container in all_container_info :
                 self.container_list.append( [ "▢", 
                                             container['name'], 
-                                            "stop" if container["status"].lower() == "exited" else container["status"],
+                                            "stoped" if container["status"].lower() == "exited" else container["status"],
                                             ] )
 
         self.container_info_table.update_values( self.container_list )

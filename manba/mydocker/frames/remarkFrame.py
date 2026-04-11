@@ -5,7 +5,7 @@ import textwrap
 # Remark content
 _info_content = textwrap.dedent(f"""
         Welcome to Docker Management Tool!\n
-          ◕‿◕ DOCKER Info Page ◕‿◕\n
+          ◕‿◕ Info Page ◕‿◕\n
         ━━━━━━━━━━━━━━━━━━━━━━━━
             • Quick Container Management\n
             • Image Version Preview\n
@@ -15,7 +15,7 @@ _info_content = textwrap.dedent(f"""
 
 _image_content = textwrap.dedent(f"""
         Welcome to Docker Management Tool!\n
-          ◕‿◕ DOCKER Image Page ◕‿◕\n
+          ◕‿◕ Image Page ◕‿◕\n
         ━━━━━━━━━━━━━━━━━━━━━━━━
             • Pull official image\n
             • Defalt latest verion \n
@@ -25,7 +25,7 @@ _image_content = textwrap.dedent(f"""
 
 _container_content = textwrap.dedent(f"""
         Welcome to Docker Management Tool!\n
-          ◕‿◕ DOCKER Container Page ◕‿◕\n
+          ◕‿◕ Container Page ◕‿◕\n
         ━━━━━━━━━━━━━━━━━━━━━━━━
             • Create Container\n
             • Start Container\n
@@ -36,7 +36,7 @@ _container_content = textwrap.dedent(f"""
 
 _networke_content = textwrap.dedent(f"""
         Welcome to Docker Management Tool!\n
-          ◕‿◕ DOCKER Image Page ◕‿◕\n
+          ◕‿◕ Image Page ◕‿◕\n
         ━━━━━━━━━━━━━━━━━━━━━━━━
             • Create Docker Network\n
             • Assign Network to Container\n
@@ -46,7 +46,7 @@ _networke_content = textwrap.dedent(f"""
     """)
 _trobleshooting_content = textwrap.dedent(f"""
         Welcome to Docker Management Tool!\n
-          ◕‿◕ DOCKER Image Page ◕‿◕\n
+          ◕‿◕ Image Page ◕‿◕\n
         ━━━━━━━━━━━━━━━━━━━━━━━━
             • View Docker Static\n
             • Inspect Container\n

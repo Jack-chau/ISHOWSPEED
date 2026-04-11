@@ -446,7 +446,7 @@ class DockerContainerTab :
             for i, container in enumerate( running_container, 1 ) :
                 self.container_list[i]= [ "▢", 
                                         container['name'], 
-                                        container["status"],
+                                        "stoped" if container["status"].lower() == "exited" else container["status"],
                                         container["newtwork_name"],
                                         container["ip_addr"],
                                         ]
@@ -705,7 +705,7 @@ class DockerContainerTab :
             for container in running_container :
                 self.container_list.append( [ "▢", 
                                             container['name'], 
-                                            container["status"],
+                                            "stoped" if container["status"].lower() == "exited" else container["status"],
                                             container["newtwork_name"],
                                             container["ip_addr"],
                                             ] )
