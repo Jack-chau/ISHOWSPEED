@@ -36,7 +36,7 @@ _container_content = textwrap.dedent(f"""
 
 _networke_content = textwrap.dedent(f"""
         Welcome to Docker Management Tool!\n
-          ◕‿◕ Image Page ◕‿◕\n
+          ◕‿◕ Network Page ◕‿◕\n
         ━━━━━━━━━━━━━━━━━━━━━━━━
             • Create Docker Network\n
             • Assign Network to Container\n
@@ -46,7 +46,7 @@ _networke_content = textwrap.dedent(f"""
     """)
 _trobleshooting_content = textwrap.dedent(f"""
         Welcome to Docker Management Tool!\n
-          ◕‿◕ Image Page ◕‿◕\n
+          ◕‿◕ Status Check Page ◕‿◕\n
         ━━━━━━━━━━━━━━━━━━━━━━━━
             • View Docker Static\n
             • Inspect Container\n
@@ -173,7 +173,7 @@ class RemarkManager :
                 "0.0",
                 _networke_content
         )
-        elif self.current_tab_name == "Trobleshoot" :
+        elif self.current_tab_name == "Status" :
             self.remark.insert( 
                 "0.0",
                 _trobleshooting_content

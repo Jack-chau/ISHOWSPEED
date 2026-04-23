@@ -13,10 +13,10 @@ class Notorious( ctk.CTk ) :
         super( ).__init__( )
         ctk.set_appearance_mode( 'light' )
         ctk.set_default_color_theme( './theme/rime.json' )
-        ctk.set_widget_scaling( 1.0 )
+        ctk.set_widget_scaling( 0.9 )
         # root window size
         self.title( "ISHOWSPEED" )
-        self.geometry( f'{1800}x{1200}+{180}+{80}' )
+        self.geometry( f'{1580}x{1580}+{205}+{80}' )
         # self.resizable( False, False )
 
 # Default Page

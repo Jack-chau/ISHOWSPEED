@@ -110,7 +110,7 @@ class DockerInfoTab( ) :
                 self.container_list[ i ] = [
                                         "▢", 
                                         container['name'], 
-                                        "stoped" if container["status"].lower() == "exited" else container["status"] ,
+                                        "stopped" if container["status"].lower() == "exited" else container["status"] ,
                 ]
 
         self.container_info_table = CTkTable( 
@@ -472,7 +472,7 @@ class DockerInfoTab( ) :
             for container in all_container_info :
                 self.container_list.append( [ "▢", 
                                             container['name'], 
-                                            "stoped" if container["status"].lower() == "exited" else container["status"],
+                                            "stopped" if container["status"].lower() == "exited" else container["status"],
                                             ] )
 
         self.container_info_table.update_values( self.container_list )

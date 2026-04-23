@@ -6,7 +6,7 @@ import subprocess
 class AnsibleInventoryTab :
     
     def __init__( self, ansible_tab ) :
-        self.ansible_tab = ansible_tab.add( 'Inventory' )
+        self.ansible_tab = ansible_tab.add( 'Operations' )
         self.client = docker.from_env( )
 
 
@@ -29,10 +29,10 @@ class AnsibleInventoryTab :
 
         self.ansible_label = ctk.CTkLabel(
             self.ansible_tab,
-            text = "Create Inventory File ",
+            text = " Multi-Container Operation ",
             font = ctk.CTkFont(
                 family="Courier New",
-                size=30,
+                size=16,
                 weight="bold",
                 slant="italic",
                 underline=True,
@@ -47,28 +47,41 @@ class AnsibleInventoryTab :
 
         self.left_frame = ctk.CTkFrame(
             self.ansible_tab,
-            width = 700,
-            height = 100,
             corner_radius = 10,
             
         )
         self.left_frame.pack(
+            side = 'left',
             fill = 'both',
             expand = True,
-            padx = ( 0, 0 ),
+            padx = ( 20, 20 ),
             pady = ( 20, 20 ),
         )
+
+        self.right_frame = ctk.CTkFrame(
+            self.ansible_tab,
+            corner_radius = 10,
+            
+        )
+        self.right_frame.pack(
+            side = 'right',
+            fill = 'both',
+            expand = True,
+            padx = ( 0, 20 ),
+            pady = ( 20, 20 ),
+        )
+
 
 ##### Left Frame
         self.left_frame.grid_columnconfigure( 0, weight = 1 )
         self.left_frame.grid_columnconfigure( 1, weight = 1 )
         self.left_frame.grid_rowconfigure( 0, weight = 0 )
-        self.left_frame.grid_rowconfigure( 1, weight = 1 )
+        self.left_frame.grid_rowconfigure( 1, weight = 0 )
 
 
         self.inventory_label = ctk.CTkLabel(
             self.left_frame,
-            text = "Select the container:",
+            text = "Select containers",
             font = ctk.CTkFont(
                 family="Courier New",
                 size=18,
@@ -81,8 +94,8 @@ class AnsibleInventoryTab :
             row = 0,
             columnspan = 2,
             pady = ( 10, 5 ),
-            padx = ( 0, 0 ),
-            sticky = 'nsew',
+            padx = ( 20, 20 ),
+            sticky = 'ew',
         )
 
 
@@ -107,7 +120,7 @@ class AnsibleInventoryTab :
         self.container_info_table = CTkTable( 
                 master = self.left_frame,
                 values = self.container_list,
-                width = 80,
+                width = 50,
                 command = self.on_table_click
 
             )
@@ -116,14 +129,14 @@ class AnsibleInventoryTab :
             row = 1,
             column = 0,
             columnspan = 2,
-            padx= ( 10, 20 ),
+            padx= ( 20, 20 ),
             pady = ( 20, 15 ),
             sticky = "nsew"            
         )
 
         self.create_btn = ctk.CTkButton( 
             self.left_frame, 
-            text="Create Inventory",
+            text="Try Ping",
             width = 130,
             height = 30,
             font = ctk.CTkFont( "Segoe Script", 15 ),
@@ -135,6 +148,78 @@ class AnsibleInventoryTab :
             sticky = 'ne' ,
             pady = ( 10 , 10 ),
             padx = ( 0, 20 ),
+        )
+
+
+##### Right Frame
+        self.select_app_label = ctk.CTkLabel(
+            self.right_frame,
+            text = "Select Action",
+            font = ctk.CTkFont(
+                family="Courier New",
+                size=18,
+                weight="bold",
+                overstrike=False
+            )
+        )
+        self.select_app_label.grid(
+            column = 0,
+            row = 0,
+            columnspan = 2,
+            pady = ( 20, 10 ),
+            padx = ( 60, 10 ),
+            sticky = 'ew',
+        )
+
+        # For demo Only
+        test_list = [
+            [ 'Select', "Action", "Priority"],
+            [ '▢', 'System Update', "1" ],
+            [ '▢', 'Install vim', "2"],
+            [ '▢', 'Install ip-utils', "3" ],
+            [ '▢', 'Install xxx', "4" ],
+            [ '▢', 'Install xxx', "5" ],
+            [ '▢', 'Install xxx', "6" ],
+            [ '▢', 'Install xxx', "7" ],
+            [ '▢', 'Install xxx', "8" ],
+            [ '▢', 'Install xxx', "9" ],
+            [ '', '', "" ],
+            [ '', '', "" ],
+            [ '', '', "" ],
+            [ '', '', "" ],
+            [ '', '', "" ],
+            [ '', '', "" ],
+        ]
+
+        self.show_table = CTkTable( 
+                master = self.right_frame,
+                # header_color = '',
+                values = test_list,
+                width = 100
+            )
+        self.show_table.grid(
+            row = 1,
+            column = 0,
+            columnspan = 2,
+            padx= ( 70, 0 ),
+            pady = ( 0, 50 ),
+            sticky = "ew"
+        )
+
+        self.run_btn = ctk.CTkButton( 
+            self.right_frame, 
+            text="RUN",
+            width = 130,
+            height = 30,
+            font = ctk.CTkFont( "Segoe Script", 15 ),
+        )
+        self.run_btn.grid(
+            row = 2,
+            column = 0,
+            columnspan = 2,
+            sticky = 'e' ,
+            pady = ( 0 , 30 ),
+            padx = ( 10, 0 ),
         )
 
     def on_table_click( self, cell ) :

@@ -287,77 +287,77 @@ class DockerContainerTab :
             pady = ( 5 , 0 ),
             padx = ( 0, 20 ),
         )
-# username
-        self.username_label = ctk.CTkLabel(
-            self.left_frame,
-            text = "User name: ",
-            font = ctk.CTkFont(
-                family="Arial",
-                size=16,
-                weight="bold",
-                overstrike=False
-            )
-        )
 
-        self.username_label.grid(
-            row = 5,
-            column = 0,
-            sticky = 'w' ,
-            pady = ( 5 , 0 ),
-            padx = ( 40, 0 ),
-        )
+# # username
+#         self.username_label = ctk.CTkLabel(
+#             self.left_frame,
+#             text = "User name: ",
+#             font = ctk.CTkFont(
+#                 family="Arial",
+#                 size=16,
+#                 weight="bold",
+#                 overstrike=False
+#             )
+#         )
 
-        self.username_entry = ctk.CTkEntry(
-            self.left_frame ,
-            placeholder_text = "JackChau",
-            font = ctk.CTkFont(
-                size=15,
-            )
-        )
+#         self.username_label.grid(
+#             row = 5,
+#             column = 0,
+#             sticky = 'w' ,
+#             pady = ( 5 , 0 ),
+#             padx = ( 40, 0 ),
+#         )
 
-        self.username_entry.grid(
-            row = 5,
-            column = 1,
-            sticky = 'we' ,
-            pady = ( 5 , 0 ),
-            padx = ( 0, 20 ),
-        )
-# user password
-        self.password_label = ctk.CTkLabel(
-            self.left_frame,
-            text = "User password: ",
-            font = ctk.CTkFont(
-                family="Arial",
-                size=16,
-                weight="bold",
-                overstrike=False
-            )
-        )
+#         self.username_entry = ctk.CTkEntry(
+#             self.left_frame ,
+#             placeholder_text = "JackChau",
+#             font = ctk.CTkFont(
+#                 size=15,
+#             )
+#         )
 
-        self.password_label.grid(
-            row = 6,
-            column = 0,
-            sticky = 'w' ,
-            pady = ( 5 , 0 ),
-            padx = ( 40, 0 ),
-        )
+#         self.username_entry.grid(
+#             row = 5,
+#             column = 1,
+#             sticky = 'we' ,
+#             pady = ( 5 , 0 ),
+#             padx = ( 0, 20 ),
+#         )
+# # user password
+#         self.password_label = ctk.CTkLabel(
+#             self.left_frame,
+#             text = "User password: ",
+#             font = ctk.CTkFont(
+#                 family="Arial",
+#                 size=16,
+#                 weight="bold",
+#                 overstrike=False
+#             )
+#         )
 
-        self.password_entry = ctk.CTkEntry(
-            self.left_frame ,
-            placeholder_text = "P@ssw0rd",
-            font = ctk.CTkFont(
-                size=15,
-            )
-        )
+#         self.password_label.grid(
+#             row = 6,
+#             column = 0,
+#             sticky = 'w' ,
+#             pady = ( 5 , 0 ),
+#             padx = ( 40, 0 ),
+#         )
 
-        self.password_entry.grid(
-            row = 6,
-            column = 1,
-            sticky = 'we' ,
-            pady = ( 5 , 0 ),
-            padx = ( 0, 20 ),
-        )
+#         self.password_entry = ctk.CTkEntry(
+#             self.left_frame ,
+#             placeholder_text = "P@ssw0rd",
+#             font = ctk.CTkFont(
+#                 size=15,
+#             )
+#         )
 
+#         self.password_entry.grid(
+#             row = 6,
+#             column = 1,
+#             sticky = 'we' ,
+#             pady = ( 5 , 0 ),
+#             padx = ( 0, 20 ),
+#         )
 
 # container publish port
         self.pub_port_label = ctk.CTkLabel(
@@ -372,7 +372,7 @@ class DockerContainerTab :
         )
         self.pub_port_label.grid(
             column = 0,
-            row = 7,
+            row = 5,
             sticky = 'w' ,
             pady = ( 5 , 0 ),
             padx = ( 40, 0 ),
@@ -387,7 +387,7 @@ class DockerContainerTab :
         )
 
         self.pub_port_entry.grid(
-            row = 7,
+            row = 5,
             column = 1,
             sticky = 'we' ,
             pady = ( 5 , 0 ),
@@ -402,7 +402,7 @@ class DockerContainerTab :
             font = ctk.CTkFont( "Segoe Script", 15 ),
         )
         self.create_container_btn.grid( 
-            row = 8,
+            row = 7,
             column = 0,
             columnspan = 2,
             sticky = 'e' ,
@@ -446,7 +446,7 @@ class DockerContainerTab :
             for i, container in enumerate( running_container, 1 ) :
                 self.container_list[i]= [ "▢", 
                                         container['name'], 
-                                        "stoped" if container["status"].lower() == "exited" else container["status"],
+                                        "stopped" if container["status"].lower() == "exited" else container["status"],
                                         container["newtwork_name"],
                                         container["ip_addr"],
                                         ]
@@ -705,7 +705,7 @@ class DockerContainerTab :
             for container in running_container :
                 self.container_list.append( [ "▢", 
                                             container['name'], 
-                                            "stoped" if container["status"].lower() == "exited" else container["status"],
+                                            "stopped" if container["status"].lower() == "exited" else container["status"],
                                             container["newtwork_name"],
                                             container["ip_addr"],
                                             ] )

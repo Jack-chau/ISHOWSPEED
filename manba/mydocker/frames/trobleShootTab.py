@@ -3,7 +3,7 @@ from CTkTable import *
 
 class DockerTSTab( ) :
     def __init__( self, docker_tab ) :
-        self.ts_tab = docker_tab.add( 'Trobleshoot' )
+        self.ts_tab = docker_tab.add( 'Status' )
         self.setup_ui( )
 
     def setup_ui( self ) :

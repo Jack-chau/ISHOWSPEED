@@ -21,11 +21,11 @@ class Appearance( ctk.CTkFrame ) :
         )        
         self.scale_optionmenu = ctk.CTkOptionMenu(
                 master,
-                values = [ '50%', '80%', '100%', '120%', '140%' ],
+                values = [ '70%', '90%', '100%', '110%', '120%' ],
                 anchor = "center",
                 command = self.change_scale
         )
-        self.scale_optionmenu.set( "100%" )
+        self.scale_optionmenu.set( "90%" )
 
         # self.change_theme = ctk.CTkOptionMenu(
         #         master,

@@ -134,7 +134,7 @@ class AnsibleMainFrame( ctk.CTkFrame ) :
             self.ansible_frame ,
             width = 900,
             height = 200,
-            anchor = "nw",
+            anchor = "n",
             # border_width = 2
         )
         self.ansible_tab.pack(
@@ -154,7 +154,7 @@ class AnsibleMainFrame( ctk.CTkFrame ) :
         )
 # Docker tabs
         self.inventory_tab = AnsibleInventoryTab( self.ansible_tab )
-        self.playbook_tab = AnsiblePlaybookTab( self.ansible_tab )
+        # self.playbook_tab = AnsiblePlaybookTab( self.ansible_tab )
 
 #CLI output frame
     # Text Box Frame
