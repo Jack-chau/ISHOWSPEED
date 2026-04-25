@@ -87,13 +87,16 @@ class SSHInstaller:
     }
 
 class AnsibleDockerConnector:
-    def __init__(self, ssh_keys_dir):
+    def __init__(self, ssh_keys_dir, logger ):
         """Initialize Docker Ansible Connector"""
+        self.UpdateTextbox = logger
+        self.UpdateTextbox.clear_textbox()
+
         try:
             self.client = docker.from_env()
         except Exception as e:
-            print(f"Failed to connect to Docker: {e}")
-            print("Make sure Docker is running and you have proper permissions.")
+            self.UpdateTextbox.update_textbox(f"Failed to connect to Docker: {e}")
+            self.UpdateTextbox.update_textbox("Make sure Docker is running and you have proper permissions.")
             sys.exit(1)
 
         # Setup directories
@@ -111,42 +114,42 @@ class AnsibleDockerConnector:
         # Initialize SSH installer
         self.ssh_installer = SSHInstaller()
 
-        print(f"Ansible Docker Connector Initialized")
-        print(f"SSH Keys Directory: {self.ssh_keys_dir}")
-        print(f"Ansible Directory: {self.ansible_dir}")
+        self.UpdateTextbox.update_textbox(f"Ansible Docker Connector Initialized")
+        self.UpdateTextbox.update_textbox(f"SSH Keys Directory: {self.ssh_keys_dir}")
+        self.UpdateTextbox.update_textbox(f"Ansible Directory: {self.ansible_dir}")
 
     def detect_package_manager(self, container):
         """
         Smart package manager detection with multiple fallback strategies
         Returns: package manager name (apk, apt....)
         """
-        print(f"Detecting package manager for container: {container.name}")
+        self.UpdateTextbox.update_textbox(f"Detecting package manager for container: {container.name}")
 
         # Strategy 1: Direct package manager checks
         pm_detected = self._check_package_managers_directly(container)
         if pm_detected:
-            print(f"   Direct detection: {pm_detected}")
+            self.UpdateTextbox.update_textbox(f"   Direct detection: {pm_detected}")
             return pm_detected
 
         # Strategy 2: Check OS release files
         pm_detected = self._check_os_release_files(container)
         if pm_detected:
-            print(f"   OS release detection: {pm_detected}")
+            self.UpdateTextbox.update_textbox(f"   OS release detection: {pm_detected}")
             return pm_detected
 
         # Strategy 3: Check image metadata
         pm_detected = self._check_image_metadata(container)
         if pm_detected:
-            print(f"   Image metadata detection: {pm_detected}")
+            self.UpdateTextbox.update_textbox(f"   Image metadata detection: {pm_detected}")
             return pm_detected
 
         # Strategy 4: Try to infer from available commands
         pm_detected = self._infer_from_available_commands(container)
         if pm_detected:
-            print(f"   Inference detection: {pm_detected}")
+            self.UpdateTextbox.update_textbox(f"   Inference detection: {pm_detected}")
             return pm_detected
 
-        print(f"   Could not detect package manager")
+        self.UpdateTextbox.update_textbox(f"   Could not detect package manager")
         return None
 
     def _check_package_managers_directly(self, container):
@@ -262,14 +265,14 @@ class AnsibleDockerConnector:
                         container = self.client.containers.get(name)
                         containers_info.append(self._extract_container_info(container))
                     except docker.errors.NotFound:
-                        print(f"Warning: Container '{name}' not found")
+                        self.UpdateTextbox.update_textbox(f"Warning: Container '{name}' not found")
             else:
                 # Get all running containers
                 for container in self.client.containers.list():
                     containers_info.append(self._extract_container_info(container))
 
         except Exception as e:
-            print(f"Error getting container info: {e}")
+            self.UpdateTextbox.update_textbox(f"Error getting container info: {e}")
 
         return containers_info
 
@@ -312,27 +315,27 @@ class AnsibleDockerConnector:
         Setup SSH server in a Docker container with smart package detection
         Returns: True if successful, False otherwise
         """
-        print(f"\n{'='*60}")
-        print(f"Setting up SSH in container: {container_name}")
-        print(f"{'='*60}")
+        self.UpdateTextbox.update_textbox(f"\n{'='*60}")
+        self.UpdateTextbox.update_textbox(f"Setting up SSH in container: {container_name}")
+        self.UpdateTextbox.update_textbox(f"{'='*60}")
 
         try:
             container = self.client.containers.get(container_name)
         except docker.errors.NotFound:
-            print(f"Container {container_name} not found")
+            self.UpdateTextbox.update_textbox(f"Container {container_name} not found")
             return False
 
         # Check if SSH is already running
         if self._check_ssh_running(container):
-            print(f"✓ SSH is already running in {container_name}")
+            self.UpdateTextbox.update_textbox(f"✓ SSH is already running in {container_name}")
             return True
 
         # Detect package manager
         package_manager = self.detect_package_manager(container)
 
         if not package_manager:
-            print(f"⚠ Could not detect package manager for {container_name}")
-            print("Trying universal installation method...")
+            self.UpdateTextbox.update_textbox(f"⚠ Could not detect package manager for {container_name}")
+            self.UpdateTextbox.update_textbox("Trying universal installation method...")
             if self._install_ssh_universal(container):
                 package_manager = self.detect_package_manager(container)
                 if not package_manager:
@@ -347,18 +350,18 @@ class AnsibleDockerConnector:
             self._setup_ssh_user(container, username, password)
 
             if self._start_ssh_service(container):
-                print(f"✅ SSH successfully configured and started in {container_name}")
+                self.UpdateTextbox.update_textbox(f"✅ SSH successfully configured and started in {container_name}")
 
                 # Test SSH connection
                 time.sleep(2)  # Give SSH time to start
                 ip_address = self._get_container_ip(container)
                 if ip_address:
                     if self.test_ssh_connection(ip_address, username, password):
-                        print(f"✓ SSH connection test successful")
+                        self.UpdateTextbox.update_textbox(f"✓ SSH connection test successful")
                     else:
-                        print(f"⚠ SSH connection test failed")
+                        self.UpdateTextbox.update_textbox(f"⚠ SSH connection test failed")
                 return True
-        print(f"❌ Failed to setup SSH in {container_name}")
+        self.UpdateTextbox.update_textbox(f"❌ Failed to setup SSH in {container_name}")
         return False
 
     def _check_ssh_running(self, container):
@@ -373,10 +376,10 @@ class AnsibleDockerConnector:
 
     def _install_ssh_with_pm(self, container, package_manager):
         """Install SSH using specific package manager"""
-        print(f"Installing SSH using {package_manager}...")
+        self.UpdateTextbox.update_textbox(f"Installing SSH using {package_manager}...")
         template = self.ssh_installer.INSTALL_TEMPLATES.get(package_manager)
         if not template:
-            print(f"❌ No installation template for {package_manager}")
+            self.UpdateTextbox.update_textbox(f"❌ No installation template for {package_manager}")
             return False
 
         try:
@@ -384,20 +387,20 @@ class AnsibleDockerConnector:
             packages = " ".join(template["packages"])
             install_cmd = template["install_cmd"].format(packages=packages)
 
-            print(f"   Running: {install_cmd}")
+            self.UpdateTextbox.update_textbox(f"   Running: {install_cmd}")
             result = container.exec_run(
                 f"/bin/sh -c '{install_cmd}'"
             )
 
             if result.exit_code != 0:
-                print(f" ❌ Installation failed:")
-                print(f"   Output: {result.output.decode()}")
+                self.UpdateTextbox.update_textbox(f" ❌ Installation failed:")
+                self.UpdateTextbox.update_textbox(f"   Output: {result.output.decode()}")
                 return False
-            print(f"✓ Packages installed successfully")
+            self.UpdateTextbox.update_textbox(f"✓ Packages installed successfully")
 
             # Run post-install commands
             for post_cmd in template["post_install"]:
-                print(f"   Running post-install: {post_cmd}")
+                self.UpdateTextbox.update_textbox(f"   Running post-install: {post_cmd}")
                 container.exec_run(
                     f"/bin/sh -c '{post_cmd}'"
                 )
@@ -405,12 +408,12 @@ class AnsibleDockerConnector:
             return True
 
         except Exception as e:
-            print(f"  ❌ Error during installation: {e}")
+            self.UpdateTextbox.update_textbox(f"  ❌ Error during installation: {e}")
             return False
 
     def _install_ssh_universal(self, container):
         """Universal SSH installation method as fallback"""
-        print("Attempting universal SSH installation...")
+        self.UpdateTextbox.update_textbox("Attempting universal SSH installation...")
 
         # Try multiple approaches
         approaches = [
@@ -425,24 +428,24 @@ class AnsibleDockerConnector:
         ]
 
         for approach in approaches:
-            print(f"   Trying: {approach}")
+            self.UpdateTextbox.update_textbox(f"   Trying: {approach}")
             try:
                 result = container.exec_run(
                     f"/bin/sh -c '{approach} 2>/dev/null'"
                 )
 
                 if result.exit_code == 0:
-                    print("  ✓ Success with universal approach")
+                    self.UpdateTextbox.update_textbox("  ✓ Success with universal approach")
                     return True
             except:
                 continue
 
-        print("❌ All universal approaches failed")
+        self.UpdateTextbox.update_textbox("❌ All universal approaches failed")
         return False
 
     def _setup_ssh_user(self, container, username, password):
         """Setup SSH user in container"""
-        print(f"Setting up user '{username}'...")
+        self.UpdateTextbox.update_textbox(f"Setting up user '{username}'...")
 
         # Create user if doesn't exist
         create_user_cmds = [
@@ -456,11 +459,11 @@ class AnsibleDockerConnector:
 
         for cmd in create_user_cmds:
             container.exec_run(f"/bin/sh -c '{cmd}'")
-        print(f"  ✓ User {username} setup completed")
+        self.UpdateTextbox.update_textbox(f"  ✓ User {username} setup completed")
 
     def _start_ssh_service(self, container):
         """Start SSH service in container"""
-        print("Starting SSH service")
+        self.UpdateTextbox.update_textbox("Starting SSH service")
 
         # Try different service start commands
         start_commands = [
@@ -478,7 +481,7 @@ class AnsibleDockerConnector:
                 )
 
                 if result.exit_code == 0:
-                    print(f"  ✓ SSH service started with: {cmd}")
+                    self.UpdateTextbox.update_textbox(f"  ✓ SSH service started with: {cmd}")
                     return True
             except:
                 continue
@@ -486,10 +489,10 @@ class AnsibleDockerConnector:
         # If service start commands fail, try running sshd directly
         try:
             container.exec_run('/usr/sbin/sshd -D', detach=True)
-            print("  ✓ SSH daemon started in background")
+            self.UpdateTextbox.update_textbox("  ✓ SSH daemon started in background")
             return True
         except Exception as e:
-            print(f"  ❌ Failed to start SSH service: {e}")
+            self.UpdateTextbox.update_textbox(f"  ❌ Failed to start SSH service: {e}")
             return False
 
     def _get_container_ip(self, container):
@@ -508,7 +511,7 @@ class AnsibleDockerConnector:
 
     def copy_ssh_key_to_container(self, container_name, username="ansible"):
         """Copy local SSH public key to container"""
-        print(f"\nCopying SSH key to {container_name}")
+        self.UpdateTextbox.update_textbox(f"\nCopying SSH key to {container_name}")
 
         private_key = self.ssh_keys_dir / "id_rsa"
         public_key = self.ssh_keys_dir / "id_rsa.pub"
@@ -520,9 +523,9 @@ class AnsibleDockerConnector:
                     capture_output=True,
                     check=True
                 )
-                print("  ✓ SSH key pair generated")
+                self.UpdateTextbox.update_textbox("  ✓ SSH key pair generated")
             except subprocess.CalledProcessError as e:
-                print(f"  ❌ Failed to generate SSH key: {e}")
+                self.UpdateTextbox.update_textbox(f"  ❌ Failed to generate SSH key: {e}")
                 return False
 
         try:
@@ -543,11 +546,11 @@ class AnsibleDockerConnector:
 
             for cmd in commands:
                 container.exec_run(f"/bin/sh -c '{cmd}'")
-            print(f" ✓ SSH key copied to {container_name}")
+            self.UpdateTextbox.update_textbox(f" ✓ SSH key copied to {container_name}")
             return True
 
         except Exception as e:
-            print(f"    ❌ Failed to copy SSH key: {e}")
+            self.UpdateTextbox.update_textbox(f"    ❌ Failed to copy SSH key: {e}")
             return False
 
     def test_ssh_connection(self,
@@ -557,9 +560,9 @@ class AnsibleDockerConnector:
                             port=22,
                             key_passphrase=None):
         """Test SSH connection to a container"""
-        print(f"Testing SSH connection to {hostname}:{port}")
+        self.UpdateTextbox.update_textbox(f"Testing SSH connection to {hostname}:{port}")
         if not hostname or hostname == '':
-            print("  ❌ No hostname/IP provided")
+            self.UpdateTextbox.update_textbox("  ❌ No hostname/IP provided")
             return False
 
         try:
@@ -583,10 +586,10 @@ class AnsibleDockerConnector:
 
             ssh.close()
 
-            print(f"  ✓ SSH connection successful: {output}")
+            self.UpdateTextbox.update_textbox(f"  ✓ SSH connection successful: {output}")
             return True
         except paramiko.AuthenticationException:
-            print(f"  ⚠ Authentication failed, trying with SSH key...")
+            self.UpdateTextbox.update_textbox(f"  ⚠ Authentication failed, trying with SSH key...")
 
             # Try with SSH key
             try:
@@ -610,19 +613,19 @@ class AnsibleDockerConnector:
                 )
 
                 ssh.close()
-                print(f"  ✓ SSH connection successful with key")
+                self.UpdateTextbox.update_textbox(f"  ✓ SSH connection successful with key")
                 return True
 
             except Exception as e:
-                print(f"  ❌ SSH key authentication failed: {e}")
+                self.UpdateTextbox.update_textbox(f"  ❌ SSH key authentication failed: {e}")
                 return False
         except Exception as e:
-            print(f"  ❌ SSH connection failed: {e}")
+            self.UpdateTextbox.update_textbox(f"  ❌ SSH connection failed: {e}")
             return False
 
     def generate_ansible_inventory(self, containers_info):
         """Generate Ansible inventory file from containers"""
-        print(f"\nGenerating Ansible inventory...")
+        self.UpdateTextbox.update_textbox(f"\nGenerating Ansible inventory...")
 
         inventory = [
             "# =========================================",
@@ -679,26 +682,26 @@ class AnsibleDockerConnector:
         with open(self.inventory_file, 'w') as f:
             f.write('\n'.join(inventory))
 
-        print(f"✓ Inventory generated: {self.inventory_file}")
+        self.UpdateTextbox.update_textbox(f"✓ Inventory generated: {self.inventory_file}")
         return self.inventory_file
 
     def prepare_all_containers(self, container_names):
         """Prepare all containers for Ansible management"""
-        print(f"\n{'='*60}")
-        print(f"Preparing containers for Ansible management")
-        print(f"{'='*60}")
+        self.UpdateTextbox.update_textbox(f"\n{'='*60}")
+        self.UpdateTextbox.update_textbox(f"Preparing containers for Ansible management")
+        self.UpdateTextbox.update_textbox(f"{'='*60}")
 
         # Get container information
         containers_info = self.get_container_info(container_names)
 
         if not containers_info:
-            print("No containers found or specified")
+            self.UpdateTextbox.update_textbox("No containers found or specified")
             return False
 
-        print(f"Found {len(containers_info)} container(s)")
+        self.UpdateTextbox.update_textbox(f"Found {len(containers_info)} container(s)")
         for i, container in enumerate(containers_info, 1):
             pm = container.get("package_manager", "unknown")
-            print(f"   {i}. {container['name']} ({container['image']}) - PM: {pm}")
+            self.UpdateTextbox.update_textbox(f"   {i}. {container['name']} ({container['image']}) - PM: {pm}")
 
         # Setup SSH in each container
         success_count = 0
@@ -714,26 +717,26 @@ class AnsibleDockerConnector:
         inventory_file = self.generate_ansible_inventory(containers_info)
 
         # Test connections
-        print(f"\n{'='*60}")
-        print(f"Testing SSH connections")
-        print(f"{'='*60}")
+        self.UpdateTextbox.update_textbox(f"\n{'='*60}")
+        self.UpdateTextbox.update_textbox(f"Testing SSH connections")
+        self.UpdateTextbox.update_textbox(f"{'='*60}")
 
         for container in containers_info:
             ip_address = container.get("ip_address")
             if ip_address:
                 self.test_ssh_connection(ip_address, password="ansible123")
 
-        print(f"\n{'='*60}")
-        print(f"Summary")
-        print(f"{'='*60}")
-        print(f"Containers processed: {len(containers_info)}")
-        print(f"Containers with SSH: {success_count}")
-        print(f"Inventory file: {inventory_file}")
+        self.UpdateTextbox.update_textbox(f"\n{'='*60}")
+        self.UpdateTextbox.update_textbox(f"Summary")
+        self.UpdateTextbox.update_textbox(f"{'='*60}")
+        self.UpdateTextbox.update_textbox(f"Containers processed: {len(containers_info)}")
+        self.UpdateTextbox.update_textbox(f"Containers with SSH: {success_count}")
+        self.UpdateTextbox.update_textbox(f"Inventory file: {inventory_file}")
 
         if success_count > 0:
-            print(f"\nYou can now use Ansible with:")
-            print(f"  ansible all_docker -i {inventory_file} -m ping")
-            print(f"  ansible-playbook -i {inventory_file} playbook.yml")
+            self.UpdateTextbox.update_textbox(f"\nYou can now use Ansible with:")
+            self.UpdateTextbox.update_textbox(f"  ansible all_docker -i {inventory_file} -m ping")
+            self.UpdateTextbox.update_textbox(f"  ansible-playbook -i {inventory_file} playbook.yml")
 
         return success_count > 0
 
@@ -742,14 +745,14 @@ class AnsibleDockerConnector:
         containers = self.get_container_info()
 
         if not containers:
-            print("No running containers found")
+            self.UpdateTextbox.update_textbox("No running containers found")
             return
 
-        print(f"\n{'='*80}")
-        print(f"Running Containers ({len(containers)} found)")
-        print(f"{'='*80}")
-        print(f"{'Name':<20} {'Image':<30} {'IP Address':<15} {'Package Manager':<15} {'Status':<10}")
-        print(f"{'-'*20} {'-'*30} {'-'*15} {'-'*15} {'-'*10}")
+        self.UpdateTextbox.update_textbox(f"\n{'='*80}")
+        self.UpdateTextbox.update_textbox(f"Running Containers ({len(containers)} found)")
+        self.UpdateTextbox.update_textbox(f"{'='*80}")
+        self.UpdateTextbox.update_textbox(f"{'Name':<20} {'Image':<30} {'IP Address':<15} {'Package Manager':<15} {'Status':<10}")
+        self.UpdateTextbox.update_textbox(f"{'-'*20} {'-'*30} {'-'*15} {'-'*15} {'-'*10}")
 
         for container in containers:
             name = container['name'][:18] + '..' if len(container['name']) > 18 else container['name']
@@ -758,12 +761,12 @@ class AnsibleDockerConnector:
             pm = container['package_manager'] or 'unknown'
             status = container['status']
 
-            print(f"{name:<20} {image:<30} {ip:<15} {pm:<15} {status:<10}")
+            self.UpdateTextbox.update_textbox(f"{name:<20} {image:<30} {ip:<15} {pm:<15} {status:<10}")
 
     def run_ansible_command(self, pattern: str, module: str, args: str = ""):
         """Run ansible ad-hoc command"""
         cmd = f"ansible {pattern} -i {self.inventory_file} -m {module} {args}"
-        print(f"Running: {cmd}")
+        self.UpdateTextbox.update_textbox(f"Running: {cmd}")
 
         try:
             result = subprocess.run(
@@ -774,15 +777,16 @@ class AnsibleDockerConnector:
                 check=False
             )
 
-            print(f"\nOutput:\n{result.stdout}")
+            self.UpdateTextbox.update_textbox(f"\nOutput:\n{result.stdout}")
             if result.stderr:
-                print(f"\nErrors:\n{result.stderr}")
+                self.UpdateTextbox.update_textbox(f"\nErrors:\n{result.stderr}")
 
             return result.returncode == 0
 
         except Exception as e:
-            print(f"Error running ansible command: {e}")
+            self.UpdateTextbox.update_textbox(f"Error running ansible command: {e}")
             return False
+
     # def reset_user_password(self, container_name, username="ansible", new_password="ansible123"):
     #     """Reset password for a user in the container"""
     #     try:
@@ -793,124 +797,173 @@ class AnsibleDockerConnector:
     #         result = container.exec_run(f"/bin/sh -c '{cmd}'")
             
     #         if result.exit_code == 0:
-    #             print(f"✓ Password reset successfully for {username}")
+    #             self.UpdateTextbox.update_textbox(f"✓ Password reset successfully for {username}")
     #             return True
     #         else:
-    #             print(f"❌ Failed to re set password")
+    #             self.UpdateTextbox.update_textbox(f"❌ Failed to re set password")
     #             return False
     #     except Exception as e:
-    #         print(f"Error: {e}")
+    #         self.UpdateTextbox.update_textbox(f"Error: {e}")
     #         return False
 
-def main():
-    """Main entry point"""
-    import argparse
+class SetupAnsible :
+    def __init__( self, logger, progressbar ) :
+        self.UpdateTextbox = logger
+        self.UpdateTextbox.clear_textbox()
+        self.ProgressBar = progressbar
 
-    parser = argparse.ArgumentParser(
-        description="Ansible Docker Connector - Manage Docker containers with Ansible",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-    %(prog)s --setup                        # Setup SSH in all containers
-    %(prog)s --setup --containers web db    # Setup SSH in specific containers
-    %(prog)s --list                         # List all containers
-    %(prog)s --test                          # Test SSH connections
-    %(prog)s --ping                          # Run ansible ping test
-    %(prog)s --shell "uptime"                # Run shell command on all containers
-        """
-    )
+    def setup_ansible( self, container_names = None ):
+        # Create connector instance
+        connector = AnsibleDockerConnector(
+                        ssh_keys_dir="~/.ssh/docker-ansible",
+                        logger = self.UpdateTextbox
+                    )
+        
+        if container_names:
+            self.UpdateTextbox.update_textbox(f"Programmatic Mode: Setting up {container_names}")
+            connector.prepare_all_containers(container_names)
+            target_containers = container_names
+            return # Exit here so it doesn't try to parse CLI args
+        
+        
+        """Main entry point"""
+        import argparse
 
-    parser.add_argument("--setup",
-                        action="store_true",
-                        help="Setup SSH in containers and generate inventory file",
-                        )
+        parser = argparse.ArgumentParser(
+            description="Ansible Docker Connector - Manage Docker containers with Ansible",
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            epilog="""
+    Examples:
+        %(prog)s --setup                        # Setup SSH in all containers
+        %(prog)s --setup --containers web db    # Setup SSH in specific containers
+        %(prog)s --list                         # List all containers
+        %(prog)s --test                          # Test SSH connections
+        %(prog)s --ping                          # Run ansible ping test
+        %(prog)s --shell "uptime"                # Run shell command on all containers
+            """
+        )
 
-    parser.add_argument("--containers",
-                        nargs='+',
-                        metavar='NAME',
-                        help="Specific container names to process"
-                        )
+        parser.add_argument("--setup",
+                            action="store_true",
+                            help="Setup SSH in containers and generate inventory file",
+                            )
 
-    parser.add_argument("--list",
-                        action="store_true",
-                        help="List all containers"
-                        )
-    parser.add_argument("--test",
-                        action="store_true",
-                        help="Test SSH connections to containers"
-                        )
+        parser.add_argument("--containers",
+                            nargs='+',
+                            metavar='NAME',
+                            help="Specific container names to process"
+                            )
 
-    parser.add_argument("--ping",
-                        action="store_true",
-                        help="Run ansible ping test (requires setup first)"
-                        )
+        parser.add_argument("--list",
+                            action="store_true",
+                            help="List all containers"
+                            )
+        parser.add_argument("--test",
+                            action="store_true",
+                            help="Test SSH connections to containers"
+                            )
 
-    parser.add_argument("--shell",
-                        metavar="COMMAND",
-                        help="Run shell command on containers (requires setup first)"
-                        )
+        parser.add_argument("--ping",
+                            action="store_true",
+                            help="Run ansible ping test (requires setup first)"
+                            )
 
-    parser.add_argument("--inventory-only",
-                        action="store_true",
-                        help="Generate inventory only (no SSH setup)"
-                        )
-    parser.add_argument("--key-copy",
-                        action="store_true",
-                        help="Copy SSH keys to containers only"
-                        )
+        parser.add_argument("--shell",
+                            metavar="COMMAND",
+                            help="Run shell command on containers (requires setup first)"
+                            )
 
-    args = parser.parse_args()
+        parser.add_argument("--inventory-only",
+                            action="store_true",
+                            help="Generate inventory only (no SSH setup)"
+                            )
+        parser.add_argument("--key-copy",
+                            action="store_true",
+                            help="Copy SSH keys to containers only"
+                            )
 
-    # Create connector instance
-    connector = AnsibleDockerConnector(ssh_keys_dir="~/.ssh/docker-ansible")
+        args = parser.parse_args()
 
-    if args.list:
-        connector.list_containers()
 
-    elif args.setup:
-        connector.prepare_all_containers(args.containers)
+        if args.list:
+            connector.list_containers()
+            self.ProgressBar.start_loading()
 
-    elif args.test:
-        containers = connector.get_container_info(args.containers)
-        for container in containers:
-            ip_address = container.get('ip_address')
-            if ip_address:
-                connector.test_ssh_connection(ip_address)
+        elif args.setup:
+            connector.prepare_all_containers( target_containers )
+            self.ProgressBar.start_loading()
 
-    elif args.ping:
-        if args.containers:
-            pattern = ",".join(args.containers)
+        elif args.test:
+            containers = connector.get_container_info( target_containers )
+            self.ProgressBar.start_loading()
+            for container in containers:
+                ip_address = container.get('ip_address')
+                if ip_address:
+                    connector.test_ssh_connection(ip_address)
+
+        elif args.ping:
+            if target_containers:
+                pattern = ",".join(target_containers)
+                self.ProgressBar.start_loading()
+            else:
+                pattern = "all_docker"
+            connector.run_ansible_command(pattern, "ping")
+
+        elif args.shell:
+            if target_containers:
+                pattern = ",".join(target_containers)
+                self.ProgressBar.start_loading()
+            else:
+                pattern = "all_docker"
+            connector.run_ansible_command(pattern, "shell", f"-a '{args.shell}'")
+
+        elif args.inventory_only:
+            self.ProgressBar.start_loading()
+            containers = connector.get_container_info(target_containers)
+            connector.generate_ansible_inventory(containers)
+
+        elif args.key_copy:
+            self.ProgressBar.start_loading()
+            containers = connector.get_container_info(target_containers)
+
+            for container in containers:
+                connector.copy_ssh_key_to_container(container["name"])
+
         else:
-            pattern = "all_docker"
-        connector.run_ansible_command(pattern, "ping")
+            # Interactive mode
+            self.UpdateTextbox.update_textbox("Ansible Docker Connector - Interactive Mode")
+            self.UpdateTextbox.update_textbox("=" * 50)
 
-    elif args.shell:
-        if args.containers:
-            pattern = ",".join(args.containers)
-        else:
-            pattern = "all_docker"
-        connector.run_ansible_command(pattern, "shell", f"-a '{args.shell}'")
+            connector.list_containers()
 
-    elif args.inventory_only:
-        containers = connector.get_container_info(args.containers)
-        connector.generate_ansible_inventory(containers)
+            # response = input("\nDo you want to setup these containers for Ansible? (y/n): ")
+            # if response.lower() in ['y', 'yes']:
+            self.ProgressBar.start_loading()
+            connector.prepare_all_containers(target_containers)
+        
+        self.progressbar.stop_loading()
 
-    elif args.key_copy:
-        containers = connector.get_container_info(args.containers)
-        for container in containers:
-            connector.copy_ssh_key_to_container(container["name"])
+class UpdateTextbox( ) :
+    def __init__( self, ctk_text_box ) :
+        self.text_box = ctk_text_box
 
-    else:
-        # Interactive mode
-        print("Ansible Docker Connector - Interactive Mode")
-        print("=" * 50)
+    def clear_textbox( self ) :
+        self.text_box.delete( '0.0', 'end' )
 
-        connector.list_containers()
+    def update_textbox( self, text ) :
+        self.text_box.insert( 'end', f"{text}\n" )
+        self.text_box.see( 'end' )
 
-        response = input("\nDo you want to setup these containers for Ansible? (y/n): ")
-        if response.lower() in ['y', 'yes']:
-            connector.prepare_all_containers(args.containers)
+class ProgressBar( ) :
+    def __init__( self, ctk_progressbar ) :
+        self.progressbar = ctk_progressbar
+        self.progressbar.configure(mode="indeterminate")
+    
+    def start_loading(self):
+            """Starts the bouncing animation"""
+            self.progressbar.start()
 
-
-if __name__ == "__main__":
-    main()
+    def stop_loading(self):
+        """Stops the animation and resets"""
+        self.progressbar.stop()
+        self.progressbar.set(0)

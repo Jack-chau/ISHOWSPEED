@@ -85,4 +85,5 @@ class Progressbar( ctk.CTkFrame ) :
                 border_width = 2,
                 corner_radius = 2,
                 progress_color = '#7cc0ea',
+                mode = "indeterminate"
         )

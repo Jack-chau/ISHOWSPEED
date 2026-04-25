@@ -10,7 +10,7 @@ class MyDockerPage( ctk.CTkFrame ) :
         super( ).__init__( master )
 # Inheritant GUI
         self.main_frame = DockerMainFrame( master )
-# Ingeritant Functions
+# Intagrate Functions
         self.image_funs = DockerImageFuns( )
         self.container_funs = DockerContainerFun( )
         self.network_funs = DockerNetworkFun( )

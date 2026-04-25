@@ -912,5 +912,5 @@ Examples:
             connector.prepare_all_containers(args.containers)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

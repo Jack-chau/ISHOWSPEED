@@ -323,6 +323,7 @@ class DockerInfoTab( ) :
         return select_list
     
     def run_container( self ) :
+        self.refrest_container_list()
         run_name_list = list()
         err_list = list()
         result = ''
@@ -331,6 +332,7 @@ class DockerInfoTab( ) :
                 run_name_list.append( row[1] )
             elif row[0] == '🗹' and row[2] == "running" :
                 err_list.append( row[1] )
+                    
         try:
             for i in err_list :
                 result += f"The Container {i} is already running!!!\n"
@@ -347,7 +349,9 @@ class DockerInfoTab( ) :
         self.refrest_container_list()
         return result
 
+
     def stop_container( self ) :
+        self.refrest_container_list()
         stop_name_list = list()
         err_list = list()
         result = ''
@@ -374,6 +378,7 @@ class DockerInfoTab( ) :
         return result
         
     def remove_container( self ) :
+        self.refrest_container_list()
         running_list = list()
         stoped_list = list()
         result = ''

@@ -6,9 +6,8 @@ import subprocess
 class AnsibleInventoryTab :
     
     def __init__( self, ansible_tab ) :
-        self.ansible_tab = ansible_tab.add( 'Operations' )
+        self.ansible_tab = ansible_tab.add( 'Ansible' )
         self.client = docker.from_env( )
-
 
         self._setup_ui( )
 
@@ -20,6 +19,7 @@ class AnsibleInventoryTab :
                 {
                     'name' : container.name,
                     'status' : container.status,
+                    'id' : container.short_id
                 }
             )
         if len( all_containers_list ) > 0 :
@@ -101,13 +101,13 @@ class AnsibleInventoryTab :
 
 #  Container Management Table
         self.container_list = list( )
-        container_headers = [ 'Select', 'Name', 'Status' ]
+        container_headers = [ 'Select', 'Name', 'Status', 'container id' ]
 
         self.container_list.append( container_headers )
 
         # Extract data to a 2D array
         all_containers_info = self.show_all_containers( )
-        for i in range( 13 ) :
+        for i in range( 15 ) :
             self.container_list.append( [] )
         if all_containers_info : 
             for i, container in enumerate( all_containers_info, 1 ) :
@@ -115,6 +115,7 @@ class AnsibleInventoryTab :
                                         "▢", 
                                         container['name'], 
                                         "stoped" if container["status"].lower() == "exited" else container["status"] ,
+                                        container['id']
                 ]
 
         self.container_info_table = CTkTable( 
@@ -134,14 +135,14 @@ class AnsibleInventoryTab :
             sticky = "nsew"            
         )
 
-        self.create_btn = ctk.CTkButton( 
+        self.try_ping_btn = ctk.CTkButton( 
             self.left_frame, 
-            text="Try Ping",
+            text="Setup Ansible",
             width = 130,
             height = 30,
             font = ctk.CTkFont( "Segoe Script", 15 ),
         )
-        self.create_btn.grid( 
+        self.try_ping_btn.grid( 
             row = 2,
             column = 0,
             columnspan = 2,
@@ -177,18 +178,18 @@ class AnsibleInventoryTab :
             [ '▢', 'System Update', "1" ],
             [ '▢', 'Install vim', "2"],
             [ '▢', 'Install ip-utils', "3" ],
-            [ '▢', 'Install xxx', "4" ],
-            [ '▢', 'Install xxx', "5" ],
-            [ '▢', 'Install xxx', "6" ],
-            [ '▢', 'Install xxx', "7" ],
-            [ '▢', 'Install xxx', "8" ],
-            [ '▢', 'Install xxx', "9" ],
-            [ '', '', "" ],
-            [ '', '', "" ],
-            [ '', '', "" ],
-            [ '', '', "" ],
-            [ '', '', "" ],
-            [ '', '', "" ],
+            [ '', '', '' ],
+            [ '', '', '' ],
+            [ '', '', '' ],
+            [ '', '', '' ],
+            [ '', '', '' ],
+            [ '', '', '' ],
+            [ '', '', '' ],
+            [ '', '', '' ],
+            [ '', '', '' ],
+            [ '', '', '' ],
+            [ '', '', '' ],
+            [ '', '', '' ],
         ]
 
         self.show_table = CTkTable( 
@@ -241,7 +242,7 @@ class AnsibleInventoryTab :
     
     def refrest_container_list( self ) :
         self.container_list.clear()
-        container_headers =  [ "Select", "Name", "Status" ]
+        container_headers =  [ "Select", "Name", "Status","short id" ]
         self.container_list.append( container_headers )
         all_container_info = self.show_all_containers( )
         if all_container_info :
@@ -249,6 +250,7 @@ class AnsibleInventoryTab :
                 self.container_list.append( [ "▢", 
                                             container['name'], 
                                             "stoped" if container["status"].lower() == "exited" else container["status"],
+                                            container['id']
                                             ] )
 
         self.container_info_table.update_values( self.container_list )
