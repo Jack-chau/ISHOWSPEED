@@ -18,7 +18,6 @@ class AnsibleInventoryTab :
             all_containers_list.append(
                 {
                     'name' : container.name,
-                    'status' : container.status,
                     'id' : container.short_id
                 }
             )
@@ -101,7 +100,7 @@ class AnsibleInventoryTab :
 
 #  Container Management Table
         self.container_list = list( )
-        container_headers = [ 'Select', 'Name', 'Status', 'container id' ]
+        container_headers = [ 'Select', 'Name', 'container id' ]
 
         self.container_list.append( container_headers )
 
@@ -114,7 +113,6 @@ class AnsibleInventoryTab :
                 self.container_list[ i ] = [
                                         "▢", 
                                         container['name'], 
-                                        "stoped" if container["status"].lower() == "exited" else container["status"] ,
                                         container['id']
                 ]
 
@@ -134,15 +132,31 @@ class AnsibleInventoryTab :
             pady = ( 20, 15 ),
             sticky = "nsew"            
         )
+        
+        self.clean_btn = ctk.CTkButton( 
+            self.left_frame, 
+            text="Clean",
+            width = 130,
+            height = 30,
+            font = ctk.CTkFont( "Segoe Script", 15 ),
+        )
+        self.clean_btn.grid( 
+            row = 2,
+            column = 0,
+            columnspan = 2,
+            sticky = 'nw' ,
+            pady = ( 10 , 10 ),
+            padx = ( 20, 20 ),
+        )
 
-        self.try_ping_btn = ctk.CTkButton( 
+        self.setup_btn = ctk.CTkButton( 
             self.left_frame, 
             text="Setup Ansible",
             width = 130,
             height = 30,
             font = ctk.CTkFont( "Segoe Script", 15 ),
         )
-        self.try_ping_btn.grid( 
+        self.setup_btn.grid( 
             row = 2,
             column = 0,
             columnspan = 2,
@@ -155,7 +169,7 @@ class AnsibleInventoryTab :
 ##### Right Frame
         self.select_app_label = ctk.CTkLabel(
             self.right_frame,
-            text = "Select Action",
+            text = "Select Tasks",
             font = ctk.CTkFont(
                 family="Courier New",
                 size=18,
@@ -172,39 +186,48 @@ class AnsibleInventoryTab :
             sticky = 'ew',
         )
 
+        # self.playbook_list = [ "System Update", "Install Ip-utils", "Setup NGINX" ]
         # For demo Only
-        test_list = [
+        self.playbook_list = [
             [ 'Select', "Action", "Priority"],
             [ '▢', 'System Update', "1" ],
-            [ '▢', 'Install vim', "2"],
-            [ '▢', 'Install ip-utils', "3" ],
-            [ '', '', '' ],
-            [ '', '', '' ],
-            [ '', '', '' ],
-            [ '', '', '' ],
-            [ '', '', '' ],
-            [ '', '', '' ],
-            [ '', '', '' ],
-            [ '', '', '' ],
-            [ '', '', '' ],
-            [ '', '', '' ],
-            [ '', '', '' ],
-            [ '', '', '' ],
+            [ '▢', 'Install ip-utils', "2" ],
+            [ '▢', 'Setup NGINX', "3"],
         ]
 
-        self.show_table = CTkTable( 
+        for _ in range( 12 ) :
+            self.playbook_list.append( ['','',''])
+
+        self.playbook_table = CTkTable( 
                 master = self.right_frame,
                 # header_color = '',
-                values = test_list,
-                width = 100
+                values = self.playbook_list,
+                width = 100,
+                command = self.ansible_table_click
             )
-        self.show_table.grid(
+        self.playbook_table.grid(
             row = 1,
             column = 0,
             columnspan = 2,
             padx= ( 70, 0 ),
             pady = ( 0, 50 ),
             sticky = "ew"
+        )
+
+        self.try_ping_btn = ctk.CTkButton( 
+            self.right_frame, 
+            text="Try Ping",
+            width = 130,
+            height = 30,
+            font = ctk.CTkFont( "Segoe Script", 15 ),
+        )
+        self.try_ping_btn.grid( 
+            row = 2,
+            column = 0,
+            columnspan = 2,
+            sticky = 'w' ,
+            pady = ( 10 , 20 ),
+            padx = ( 20, 0 ),
         )
 
         self.run_btn = ctk.CTkButton( 
@@ -219,7 +242,7 @@ class AnsibleInventoryTab :
             column = 0,
             columnspan = 2,
             sticky = 'e' ,
-            pady = ( 0 , 30 ),
+            pady = ( 0 , 0 ),
             padx = ( 10, 0 ),
         )
 
@@ -242,15 +265,35 @@ class AnsibleInventoryTab :
     
     def refrest_container_list( self ) :
         self.container_list.clear()
-        container_headers =  [ "Select", "Name", "Status","short id" ]
+        container_headers =  [ "Select", "Name","short id" ]
         self.container_list.append( container_headers )
         all_container_info = self.show_all_containers( )
         if all_container_info :
             for container in all_container_info :
                 self.container_list.append( [ "▢", 
                                             container['name'], 
-                                            "stoped" if container["status"].lower() == "exited" else container["status"],
                                             container['id']
                                             ] )
 
         self.container_info_table.update_values( self.container_list )
+
+    def ansible_table_click( self, cell ) :
+        row, column = cell["row"], cell["column"]
+        if row > 0 and column == 0 :
+            if self.playbook_list[row][0] == '▢':
+                self.playbook_list[row][0] = '🗹'
+            else :
+                self.playbook_list[row][0] = '▢'
+            self.playbook_table.update_values( self.playbook_list )
+        else :
+            pass
+    
+    def selected_playbook( self ) :
+        selected_playbook_list = list()
+        for row_idx, row in enumerate( self.playbook_list[1:], 1 ):
+            for column_idx, column in enumerate( row ) :
+                if column == '🗹' :
+                    selected_playbook_list.append( self.playbook_list[row_idx] )
+            else :
+                pass
+        return selected_playbook_list

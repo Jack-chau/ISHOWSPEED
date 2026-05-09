@@ -313,6 +313,8 @@ class DockerInfoTab( ) :
             else :
                 self.container_list[row][0] = '▢'
             self.container_info_table.update_values( self.container_list )
+        else :
+            pass
     
     def selected_container( self ) :
         select_list = list()
@@ -323,15 +325,16 @@ class DockerInfoTab( ) :
         return select_list
     
     def run_container( self ) :
-        self.refrest_container_list()
         run_name_list = list()
         err_list = list()
         result = ''
         for row_idx, row in enumerate( self.container_list[1:], 1 ):
-            if row[0] == '🗹' and row[2] != "running" :
+            if len(row) > 1 and row[0] == '🗹' and row[2] != "running" :
                 run_name_list.append( row[1] )
-            elif row[0] == '🗹' and row[2] == "running" :
-                err_list.append( row[1] )
+                action_name = row[1]
+                print( f"Executing task: {action_name}" )
+
+
                     
         try:
             for i in err_list :
@@ -351,15 +354,13 @@ class DockerInfoTab( ) :
 
 
     def stop_container( self ) :
-        self.refrest_container_list()
+        # self.refrest_container_list()
         stop_name_list = list()
         err_list = list()
         result = ''
         for row_idx, row in enumerate( self.container_list[1:], 1 ):
-            if row[0] == '🗹' and row[2] == "running" :
+            if len(row) > 1 and row[0] == '🗹' and row[2] == "running" :
                 stop_name_list.append( row[1] )
-            elif row[0] == '🗹' and row[2] != "running" :
-                err_list.append( row[1] )
                     
         try:
             for i in err_list :
@@ -378,12 +379,12 @@ class DockerInfoTab( ) :
         return result
         
     def remove_container( self ) :
-        self.refrest_container_list()
+        # self.refrest_container_list()
         running_list = list()
         stoped_list = list()
         result = ''
         for row_idx, row in enumerate( self.container_list[1:], 1 ):
-            if row[0] == '🗹' and row[2] == "running" :
+            if len(row) > 1 and row[0] == '🗹' and row[2] == "running" :
                 running_list.append( row[1] )
             elif row[0] == '🗹' and row[2] != "running" :
                 stoped_list.append( row[1] )

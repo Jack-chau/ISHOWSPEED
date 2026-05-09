@@ -1,0 +1,45 @@
+---
+- name: Cross-OS Nginx Installation
+  hosts: all
+  become: yes
+  tasks:
+    # 1. Update cache based on the specific OS family
+    - name: Update package cache (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Update package cache (RedHat/CentOS)
+      yum:
+        update_cache: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Update package cache (Alpine)
+      apk:
+        update_cache: yes
+      when: ansible_os_family == "Alpine"
+
+    # 2. Use the generic 'package' module (works for apt, yum, and apk)
+    - name: Install Nginx
+      package:
+        name: nginx
+        state: present
+
+    # 3. START NGINX WITHOUT USING THE SERVICE MODULE
+    # This avoids the "Service is in unknown state" error in Docker.
+    - name: Ensure Nginx is running
+      shell: |
+        if ! pgrep -x "nginx" > /dev/null; then
+          nginx
+        fi
+      register: nginx_start
+      changed_when: "'nginx' in nginx_start.stdout"
+
+    # 4. Verify Installation
+    - name: Check Nginx version
+      command: nginx -v
+      register: nginx_ver
+      
+    - name: Show Nginx version
+      debug:
+        msg: "Nginx is installed: {{ nginx_ver.stderr }}"

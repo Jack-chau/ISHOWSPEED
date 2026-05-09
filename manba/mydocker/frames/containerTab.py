@@ -288,77 +288,6 @@ class DockerContainerTab :
             padx = ( 0, 20 ),
         )
 
-# # username
-#         self.username_label = ctk.CTkLabel(
-#             self.left_frame,
-#             text = "User name: ",
-#             font = ctk.CTkFont(
-#                 family="Arial",
-#                 size=16,
-#                 weight="bold",
-#                 overstrike=False
-#             )
-#         )
-
-#         self.username_label.grid(
-#             row = 5,
-#             column = 0,
-#             sticky = 'w' ,
-#             pady = ( 5 , 0 ),
-#             padx = ( 40, 0 ),
-#         )
-
-#         self.username_entry = ctk.CTkEntry(
-#             self.left_frame ,
-#             placeholder_text = "JackChau",
-#             font = ctk.CTkFont(
-#                 size=15,
-#             )
-#         )
-
-#         self.username_entry.grid(
-#             row = 5,
-#             column = 1,
-#             sticky = 'we' ,
-#             pady = ( 5 , 0 ),
-#             padx = ( 0, 20 ),
-#         )
-# # user password
-#         self.password_label = ctk.CTkLabel(
-#             self.left_frame,
-#             text = "User password: ",
-#             font = ctk.CTkFont(
-#                 family="Arial",
-#                 size=16,
-#                 weight="bold",
-#                 overstrike=False
-#             )
-#         )
-
-#         self.password_label.grid(
-#             row = 6,
-#             column = 0,
-#             sticky = 'w' ,
-#             pady = ( 5 , 0 ),
-#             padx = ( 40, 0 ),
-#         )
-
-#         self.password_entry = ctk.CTkEntry(
-#             self.left_frame ,
-#             placeholder_text = "P@ssw0rd",
-#             font = ctk.CTkFont(
-#                 size=15,
-#             )
-#         )
-
-#         self.password_entry.grid(
-#             row = 6,
-#             column = 1,
-#             sticky = 'we' ,
-#             pady = ( 5 , 0 ),
-#             padx = ( 0, 20 ),
-#         )
-
 # container publish port
         self.pub_port_label = ctk.CTkLabel(
             self.left_frame,
@@ -558,11 +487,9 @@ class DockerContainerTab :
         err_list = list()
         result = ''
         for row_idx, row in enumerate( self.container_list[1:], 1 ):
-            if row[0] == '🗹' and row[2] != "running" :
+            if len(row) > 1 and row[0] == '🗹' and row[2] != "running" :
                 run_name_list.append( row[1] )
-            elif row[0] == '🗹' and row[2] == "running" :
-                err_list.append( row[1] )
-                    
+
         try:
             for i in err_list :
                 result += f"The Container {i} is already running!!!\n"
@@ -584,11 +511,9 @@ class DockerContainerTab :
         err_list = list()
         result = ''
         for row_idx, row in enumerate( self.container_list[1:], 1 ):
-            if row[0] == '🗹' and row[2] == "running" :
+            if len(row) > 1 and row[0] == '🗹' and row[2] == "running" :
                 stop_name_list.append( row[1] )
-            elif row[0] == '🗹' and row[2] != "running" :
-                err_list.append( row[1] )
-                    
+
         try:
             for i in err_list :
                 result += f"The Container {i} is not running!!!\n"
@@ -611,10 +536,9 @@ class DockerContainerTab :
         stoped_list = list()
         result = ''
         for row_idx, row in enumerate( self.container_list[1:], 1 ):
-            if row[0] == '🗹' and row[2] == "running" :
+            if len(row) > 1 and row[0] == '🗹' and row[2] == "running" :
                 running_list.append( row[1] )
-            elif row[0] == '🗹' and row[2] != "running" :
-                stoped_list.append( row[1] )
+
 
         if not running_list and not stoped_list :
             CTkMessagebox(

@@ -153,7 +153,6 @@ class AnsibleMainFrame( ctk.CTkFrame ) :
         )
 # Docker tabs
         self.inventory_tab = AnsibleInventoryTab( self.ansible_tab )
-        # self.playbook_tab = AnsiblePlaybookTab( self.ansible_tab )
 
 #CLI output frame
     # Text Box Frame
@@ -170,7 +169,7 @@ class AnsibleMainFrame( ctk.CTkFrame ) :
             sticky = 'nsew',
         )
     # Textbox
-        self.ansible_textbox = ctk.CTkTextbox( 
+        self.ansible_textbox = ctk.CTkTextbox(
             self.ansible_textbox_frame,
             corner_radius = 0,
             border_width = 0,
@@ -193,4 +192,3 @@ class AnsibleMainFrame( ctk.CTkFrame ) :
             pady = (10,10),
         )
         self.progressbar.set( 0 )
-        # self.progressbar.forget()

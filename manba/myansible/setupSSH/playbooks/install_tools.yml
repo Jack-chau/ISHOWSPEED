@@ -1,0 +1,29 @@
+---
+- name: Install network tools in Docker container
+  hosts: all
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+    
+    - name: Install iputils-ping and iproute2
+      apt:
+        name:
+          - iputils-ping
+          - iproute2
+        state: present
+    
+    - name: Verify ping works
+      command: ping -c 1 8.8.8.8
+      register: ping_test
+      changed_when: false
+      ignore_errors: yes
+    
+    - name: Show ping result
+      debug:
+        msg: "{{ 'Ping successful!' if ping_test.rc == 0 else 'Ping failed' }}"
