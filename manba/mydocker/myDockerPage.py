@@ -3,7 +3,7 @@ from mydocker.frames.dockerMainFrame import DockerMainFrame
 from mydocker.functions.imageFun import DockerImageFuns
 from mydocker.functions.containerFun import DockerContainerFun
 from mydocker.functions.networkFun import DockerNetworkFun
-from mydocker.functions.trobleShootFun import DockerTBFun
+from mydocker.functions.statusCheckFun import DockerSCFun
 
 class MyDockerPage( ctk.CTkFrame ) :
     def __init__( self, master ) :
@@ -14,7 +14,7 @@ class MyDockerPage( ctk.CTkFrame ) :
         self.image_funs = DockerImageFuns( )
         self.container_funs = DockerContainerFun( )
         self.network_funs = DockerNetworkFun( )
-        self.ts_funs = DockerTBFun( )
+        self.sc_funs = DockerSCFun( )
 # Combine Docker GUI and Functions
         self.main_frame.docker_frame( )
         self.check_connection( )
@@ -30,8 +30,8 @@ class MyDockerPage( ctk.CTkFrame ) :
         self.main_frame.network_tab.staticIp_execute.configure( command = self.assign_static_ip )
 
 # Troble Shooting Tab
-        self.main_frame.trobleshoot_tab.check_it_out.configure( command = self.docker_info )
-        self.main_frame.trobleshoot_tab.clear_btn.configure( command = self.clear_textbox )
+        self.main_frame.statusCheck_tab.check_it_out.configure( command = self.docker_info )
+        self.main_frame.statusCheck_tab.clear_btn.configure( command = self.clear_textbox )
 
 
     def clear_textbox( self ) :
@@ -39,7 +39,7 @@ class MyDockerPage( ctk.CTkFrame ) :
 
     def check_connection( self ) :
         self.clear_textbox( )
-        self.main_frame.docker_textbox.insert( 'end', self.ts_funs.check_connection( ) )
+        self.main_frame.docker_textbox.insert( 'end', self.sc_funs.check_connection( ) )
 
     def update_textbox( self, text ) :
         self.main_frame.docker_textbox.insert( 'end', text )
@@ -162,32 +162,32 @@ class MyDockerPage( ctk.CTkFrame ) :
 
     def docker_info( self ) :
         self.clear_textbox( )
-        if self.main_frame.trobleshoot_tab.check_connection.get() == 'on':
-            self.main_frame.docker_textbox.insert( 'end', self.ts_funs.check_connection( ) )
+        if self.main_frame.statusCheck_tab.check_connection.get() == 'on':
+            self.main_frame.docker_textbox.insert( 'end', self.sc_funs.check_connection( ) )
 
-        if self.main_frame.trobleshoot_tab.docker_cli_version.get() == 'on':
-            self.main_frame.docker_textbox.insert( 'end', self.ts_funs.check_docker_client_version( ) )
+        if self.main_frame.statusCheck_tab.docker_cli_version.get() == 'on':
+            self.main_frame.docker_textbox.insert( 'end', self.sc_funs.check_docker_client_version( ) )
 
-        if self.main_frame.trobleshoot_tab.docker_server_version.get() == 'on':
-            self.main_frame.docker_textbox.insert( 'end', self.ts_funs.check_docker_server_version( ) )
+        if self.main_frame.statusCheck_tab.docker_server_version.get() == 'on':
+            self.main_frame.docker_textbox.insert( 'end', self.sc_funs.check_docker_server_version( ) )
         
-        if self.main_frame.trobleshoot_tab.docker_context.get() == 'on':    
-            self.main_frame.docker_textbox.insert( 'end', self.ts_funs.show_docker_contexts( ) )        
+        if self.main_frame.statusCheck_tab.docker_context.get() == 'on':    
+            self.main_frame.docker_textbox.insert( 'end', self.sc_funs.show_docker_contexts( ) )        
         
-        if self.main_frame.trobleshoot_tab.docker_info.get() == 'on':    
-            self.main_frame.docker_textbox.insert( 'end', self.ts_funs.show_docker_info( ) )        
+        if self.main_frame.statusCheck_tab.docker_info.get() == 'on':    
+            self.main_frame.docker_textbox.insert( 'end', self.sc_funs.show_docker_info( ) )        
         
-        if self.main_frame.trobleshoot_tab.docker_networks.get() == 'on':    
-            self.main_frame.docker_textbox.insert( 'end', self.ts_funs.show_network_contexts( ) ) 
+        if self.main_frame.statusCheck_tab.docker_networks.get() == 'on':    
+            self.main_frame.docker_textbox.insert( 'end', self.sc_funs.show_network_contexts( ) ) 
 
-        if self.main_frame.trobleshoot_tab.running_containers.get() == 'on':    
-            self.main_frame.docker_textbox.insert( 'end', self.ts_funs.show_runing_containers( ) )        
+        if self.main_frame.statusCheck_tab.running_containers.get() == 'on':    
+            self.main_frame.docker_textbox.insert( 'end', self.sc_funs.show_runing_containers( ) )        
         
-        if self.main_frame.trobleshoot_tab.container_inspect.get() == 'on':    
-            self.main_frame.docker_textbox.insert( 'end', self.ts_funs.inspect_container( self.main_frame.trobleshoot_tab.container_inspect_entry.get() ) )        
+        if self.main_frame.statusCheck_tab.container_inspect.get() == 'on':    
+            self.main_frame.docker_textbox.insert( 'end', self.sc_funs.inspect_container( self.main_frame.statusCheck_tab.container_inspect_entry.get() ) )        
         
-        if self.main_frame.trobleshoot_tab.network_inspect.get() == 'on':    
-            self.main_frame.docker_textbox.insert( 'end', self.ts_funs.inspect_network( self.main_frame.trobleshoot_tab.network_inspect_entry.get() ) ) 
+        if self.main_frame.statusCheck_tab.network_inspect.get() == 'on':    
+            self.main_frame.docker_textbox.insert( 'end', self.sc_funs.inspect_network( self.main_frame.statusCheck_tab.network_inspect_entry.get() ) ) 
 
 
         

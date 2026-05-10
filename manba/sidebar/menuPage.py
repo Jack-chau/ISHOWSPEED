@@ -34,21 +34,6 @@ class SwitchMenu( ctk.CTkFrame ) :
             dark_image = Image.open( "images/resized_images/ansible.png" ), 
             size=( self.icon_width, self.icon_height )
       )
-      # self.logging_icon = ctk.CTkImage( 
-      #       light_image = Image.open( 'images/resized_images/logging.png' ),
-      #       dark_image = Image.open( "images/resized_images/logging.png" ), 
-      #       size=( self.icon_width, self.icon_height )
-      # )
-      # self.schedule_icon = ctk.CTkImage( 
-      #       light_image = Image.open( 'images/resized_images/schedule.png' ),
-      #       dark_image = Image.open( "images/resized_images/schedule.png" ), 
-      #       size=( self.icon_width, self.icon_height )
-      # )
-      # self.github_icon = ctk.CTkImage( 
-      #       light_image = Image.open( 'images/resized_images/github.png' ),
-      #       dark_image = Image.open( "images/resized_images/github.png" ), 
-      #       size=( self.icon_width, self.icon_height )
-      # )
       self.close_icon = ctk.CTkImage( 
             light_image = Image.open( 'images/resized_images/close.png' ),
             dark_image = Image.open( "images/resized_images/close.png" ), 

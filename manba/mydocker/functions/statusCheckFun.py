@@ -1,7 +1,7 @@
 import docker
 import subprocess
 
-class DockerTBFun( ) :
+class DockerSCFun( ) :
 	def __init__( self ):
 		self.client = docker.from_env( )
 # Ping

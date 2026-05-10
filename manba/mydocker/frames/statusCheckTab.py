@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from CTkTable import *
 
-class DockerTSTab( ) :
+class DockerStatusCheckTab( ) :
     def __init__( self, docker_tab ) :
         self.ts_tab = docker_tab.add( 'Status' )
         self.setup_ui( )

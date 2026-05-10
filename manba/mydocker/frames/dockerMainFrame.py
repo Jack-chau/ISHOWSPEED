@@ -8,7 +8,7 @@ from mydocker.frames.infoTab import DockerInfoTab
 from mydocker.frames.imageTab import DockerImageTab
 from mydocker.frames.containerTab import DockerContainerTab
 from mydocker.frames.networkTab import DockerNetworkTab
-from mydocker.frames.trobleShootTab import DockerTSTab
+from mydocker.frames.statusCheckTab import DockerStatusCheckTab
 from mydocker.frames.remarkFrame import RemarkManager
 
 
@@ -188,7 +188,7 @@ class DockerMainFrame( ctk.CTkFrame ) :
         self.image_tab = DockerImageTab( self.docker_tab )
         self.container_tab = DockerContainerTab( self.docker_tab )
         self.network_tab = DockerNetworkTab( self.docker_tab )
-        self.trobleshoot_tab = DockerTSTab( self.docker_tab )
+        self.statusCheck_tab = DockerStatusCheckTab( self.docker_tab )
         self.remark_frame = RemarkManager( self.docker_tab, self.remark_frame  )
 
 #CLI output frame

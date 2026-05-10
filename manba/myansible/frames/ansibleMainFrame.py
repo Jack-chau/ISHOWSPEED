@@ -5,6 +5,7 @@ from sidebar.features import Clock, Appearance, Progressbar
 from datetime import datetime
 # Frames
 from myansible.frames.inventoryTab import AnsibleInventoryTab
+from myansible.frames.remarkFrame import RemarkManager
 
 class AnsibleMainFrame( ctk.CTkFrame ) :
     def __init__( self, master ) :
@@ -151,8 +152,38 @@ class AnsibleMainFrame( ctk.CTkFrame ) :
             dynamic_resizing = False, 
 
         )
+
+        ### Remark Frame
+        self.note_frame = ctk.CTkFrame( 
+            self.master, 
+            width = 400,
+            # border_width = 2,
+        )
+        self.note_frame.grid( 
+            row = 0, 
+            column = 7,
+            columnspan = 2,
+            rowspan = 4,
+            sticky = 'nsew',
+        )
+# Remark
+        self.remark_frame = ctk.CTkFrame(
+            self.note_frame,
+            width = 400,
+            height = 500,
+        )
+        self.remark_frame.pack(
+            fill = 'both' ,
+            expand = True,
+            side = 'top',
+            padx = ( 0, 0 ),
+            pady = ( 0, 0 )
+        )
+
+
 # Docker tabs
         self.inventory_tab = AnsibleInventoryTab( self.ansible_tab )
+        self.remark_frame = RemarkManager( self.ansible_tab, self.remark_frame  )
 
 #CLI output frame
     # Text Box Frame

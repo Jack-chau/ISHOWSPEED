@@ -54,6 +54,16 @@ _trobleshooting_content = textwrap.dedent(f"""
             Ready to manage your Docker!
     """)
 
+_ansible_content = textwrap.dedent(f"""
+        Welcome to Docker Management Tool!\n
+          ◕‿◕ Ansible Page ◕‿◕\n
+        ━━━━━━━━━━━━━━━━━━━━━━━━
+            • Multi-container Control\n
+            • Setup Ansible\n
+            • Run Tasks\n
+            Ready to manage your Docker!
+    """)
+
 class RemarkManager :
     def __init__( self, docker_tab, remark_frame ) :
         self.remark_frame = remark_frame
@@ -177,5 +187,10 @@ class RemarkManager :
             self.remark.insert( 
                 "0.0",
                 _trobleshooting_content
+        )
+        elif self.current_tab_name == "Ansible" :
+            self.remark.insert( 
+                "0.0",
+                _ansible_content
         )
 
